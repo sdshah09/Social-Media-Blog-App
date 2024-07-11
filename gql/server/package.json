@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start":"nodemon server.js"
+    "serve":"nodemon server/gql-server.js"
   },
   "keywords": [],
   "author": "",
