@@ -4,14 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve":"nodemon server/gql-server.js"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo/server": "^4.10.4",
+    "@graphql-tools/load-files": "^7.0.0",
+    "@graphql-tools/merge": "^9.0.4",
+    "apollo-server": "^3.13.0",
+    "apollo-server-express": "^3.13.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "graphql": "^16.9.0",
+    "graphql-tools": "^9.0.1",
     "nodemon": "^3.1.4"
   }
 }
