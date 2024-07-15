@@ -16,7 +16,7 @@ const newPost = (parent,args) =>{ //newPost is a parent
         description: args.description
 
     };
-    // [ush new object to osts array]
+    // [push new object to osts array]
     posts.push(post);
     return post
 };
