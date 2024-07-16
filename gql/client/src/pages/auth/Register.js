@@ -35,7 +35,7 @@ const Register = () => {
 
   return (
     <div className="container p-5">
-        {loading ? (<h4>Loading..</h4>): (<h4>Register</h4>)}
+      {loading ? <h4>Loading..</h4> : <h4>Register</h4>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Email Address</label>

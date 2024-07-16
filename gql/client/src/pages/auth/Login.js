@@ -20,6 +20,18 @@ const Login = () => {
               disabled={loading}
             />
           </div>
+          <div className="form-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="form-control"
+              placeholder="Enter email"
+              disabled={loading}
+            />
+          </div>
+
           <button className="btn=btn-raised btn-primary"></button>
         </form>
       </div>
