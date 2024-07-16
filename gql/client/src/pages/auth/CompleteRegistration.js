@@ -40,7 +40,7 @@ const CompleteRegistration = () => {
   };
 
   return (
-      <div className="contianer p-5">
+      <div className="container p-5">
           {loading ? <h4 className="text-danger">Loading...</h4> : <h4>Register</h4>}
           <form onSubmit={handleSubmit}>
               <div className="form-group">
