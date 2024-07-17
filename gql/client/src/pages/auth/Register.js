@@ -18,6 +18,8 @@ const Register = () => {
 
     try {
       const result = await sendSignInLinkToEmail(auth, email, config); // sendSignInLinkToEmail expects authInstance, email, config
+      // Sends a sign-in email link to the user with the specified email.
+
       console.log("result is: ", result);
       toast.success(`Sent Email to ${email} to complete your registration`);
       window.localStorage.setItem("emailForRegistration", email);
