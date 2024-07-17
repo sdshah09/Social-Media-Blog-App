@@ -1,8 +1,14 @@
 const {gql} = require('apollo-server-express');
+const auth = require('../typeDefs/auth');
+const { authCheck } = require('../helpers/auth'); // Ensure this is the correct path and named import
 
-const me = () => "Shaswat D Shah";
+const me = (parent, args, { req, res }) => {
+    authCheck(req, res);
+    return "Shaswat D Shah"; // Ensure this returns a non-null value
+};
+
 module.exports = {
     Query: {
         me
     }
-}
+};
