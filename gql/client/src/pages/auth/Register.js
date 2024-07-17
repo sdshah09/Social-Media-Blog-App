@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { getAuth, sendSignInLinkToEmail } from "firebase/auth";
-import { auth } from "../../firebase";
 import { toast } from "react-toastify";
+import { auth } from "../../firebase";
+
 const Register = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,19 +17,15 @@ const Register = () => {
     };
 
     try {
-      const authInstance = getAuth(); // Ensure you get the auth instance correctly
-      const result = await sendSignInLinkToEmail(authInstance, email, config); // sendSignInLinkToEmail expects authInstance, email, config
+      const result = await sendSignInLinkToEmail(auth, email, config); // sendSignInLinkToEmail expects authInstance, email, config
       console.log("result is: ", result);
-      // Show toast notification to user about email sent (implementation depends on your toast library)
       toast.success(`Sent Email to ${email} to complete your registration`);
-      // Save user email to local storage
       window.localStorage.setItem("emailForRegistration", email);
-
-      // Clear state
-      setEmail(""); // We don't want to show the email once after confirm so clearing the email and loading state
+      setEmail("");
       setLoading(false);
     } catch (error) {
       console.error("Error sending email link", error);
+      toast.error(error.message);
       setLoading(false);
     }
   };

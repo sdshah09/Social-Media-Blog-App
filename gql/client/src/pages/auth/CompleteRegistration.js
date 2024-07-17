@@ -1,75 +1,78 @@
 import React, { useState, useEffect } from "react";
-import { auth } from "../../firebase";
+import { getAuth, signInWithEmailLink, updatePassword } from "firebase/auth";
 import { toast } from "react-toastify";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CompleteRegistration = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-
   const navigate = useNavigate();
-  const location = useLocation();
+  const auth = getAuth();  // Get the Firebase Auth instance
 
   useEffect(() => {
-    // Retrieve the email from local storage when the component mounts
-    const storedEmail = window.localStorage.getItem("emailForRegistration");
-    if (storedEmail) {
-      setEmail(storedEmail);
-    }
-  }, []); // Empty dependency array to run once on mount
+    setEmail(window.localStorage.getItem("emailForRegistration") || '');
+  }, []);
 
-  const handleSubmit = async(e) => {
-      //e is Event
-      e.preventDefault(); // so the browser doesn't relod when the user hits submit
-      setLoading(true);
-      //validation
-      if(!email||!password){
-        toast.error('Email and password is required')
-        return
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    if (!email || !password) {
+      toast.error('Email and password are required');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Complete the sign-in
+      const result = await signInWithEmailLink(auth, email, window.location.href);
+      if (result.user) {
+        // Now update the password
+        await updatePassword(result.user, password);
+        window.localStorage.removeItem('emailForRegistration');  // Clean up local storage
+        toast.success('Registration complete and password set!');
+        navigate('/login');  // Redirect to home or another route
+      } else {
+        throw new Error('Failed to complete registration');
       }
-      try{
-        const result = await auth.signInWithEmailLink(email,window.location.href)
-        console.log(result);
-      }catch(error){
-        console.log('register complete error',error.message)
-        setLoading(false)
-        toast.error(error.message)
-      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error(error.message);
+      setLoading(false);
+    }
   };
 
   return (
-      <div className="container p-5">
-          {loading ? <h4 className="text-danger">Loading...</h4> : <h4>Register</h4>}
-          <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                  <label>Email Address</label>
-                  <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="form-control"
-                      placeholder="Enter email"
-                      disabled
-                  />
-              </div>
-              <div className="form-group">
-                  <label>Password</label>
-                  <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-control"
-                      placeholder="Enter password"
-                      disabled={loading}
-                  />
-              </div>
-              <button className="btn btn-raised btn-primary" disabled={!email || loading}>
-                  Submit
-              </button>
-          </form>
-      </div>
+    <div className="container p-5">
+      {loading ? <h4 className="text-danger">Loading...</h4> : <h4>Complete Registration</h4>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Email Address</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-control"
+            placeholder="Enter email"
+            disabled // This should be disabled if you are handling email verification through the link
+          />
+        </div>
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="form-control"
+            placeholder="Enter password"
+            disabled={loading}
+          />
+        </div>
+        <button className="btn btn-raised btn-primary" disabled={!email || loading}>
+          Submit
+        </button>
+      </form>
+    </div>
   );
 };
 

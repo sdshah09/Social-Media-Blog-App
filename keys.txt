@@ -1,0 +1,2 @@
+mongodb+srv://shaswatshah05:sdshah0512@cluster0.bd46cmn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+shaswatshah05 pwd: sdshah0512
