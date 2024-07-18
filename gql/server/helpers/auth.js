@@ -33,6 +33,12 @@ admin.initializeApp({
 
 exports.authCheck = async (req) => {
     try {
+        if (!req.headers.authtoken) {
+            console.log("No authtoken provided, skipping auth check");
+            return null;
+        }    
+        console.log("Request headers in helpers are: ",req.headers);
+        console.log("Authtoken is: ",req.headers.authtoken);
         const currentUser = await admin.auth().verifyIdToken(req.headers.authtoken);
         console.log('CURRENT USER', currentUser);
         return currentUser;

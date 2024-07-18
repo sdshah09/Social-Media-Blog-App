@@ -26,10 +26,11 @@ const Login = () => {
         type: "LOGGED_IN_USER",
         payload: { email: user.email, token: idTokenResult.token },
       });
+      window.localStorage.setItem('authToken', idTokenResult.token);
 
-      console.log("User signed in: ", user);
+      console.log("User signed in: ", idTokenResult.token);
       toast.success("Sign-in successful!");
-      setLoading(false);
+      // setLoading(false);
       navigate("/");
     } catch (error) {
       console.error("Error during sign-in: ", error);

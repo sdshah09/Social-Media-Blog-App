@@ -1,31 +1,33 @@
-const {gql} = require('apollo-server-express');
-const {posts} = require('../temp');
+const { gql } = require('apollo-server-express');
+const { posts } = require('../temp');
+const { authCheck } = require('../helpers/auth');
 
-//queries
+// queries
 const totalPosts = () => posts.length;
-const allPost = () => posts;
+const allPosts = async (parent, args, { req }) => {
+    await authCheck(req);
+    return posts;
+};
 
 // mutation
-
-const newPost = (parent,args) =>{ //newPost is a parent
-    // create a new post opbeject
-    console.log(args);
+const newPost = (parent, args) => {
+    // console.log(args);
+    // create a new post object
     const post = {
         id: posts.length + 1,
-        title: args.title,
-        description: args.description
-
+        ...args.input
     };
-    // [push new object to osts array]
+    // push new post object to posts array
     posts.push(post);
-    return post
+    return post;
 };
+
 module.exports = {
     Query: {
         totalPosts,
-        allPost
+        allPosts
     },
     Mutation: {
         newPost
     }
-}
+};

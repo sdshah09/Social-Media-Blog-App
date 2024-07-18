@@ -1,59 +1,57 @@
 import React, { createContext, useReducer, useEffect } from "react";
-import {auth} from '../firebase'
-//reducer
-const firebaseReducer = (state, action) => {
-    switch (action.type) {
-        case "LOGGED_IN_USER":
-            return { ...state, user: action.payload }
-        default:
-            return state
-    }
-}
-//state
+import { auth } from "../firebase";
+
+// Define the initial state for the context
 const initialState = {
-    user: "Shaswat Dharmeshkumar Shah"
-}
+  user: null, // It's better to start with `null` to represent no user logged in
+};
 
-//create context
+// Create a context
+const AuthContext = createContext(initialState);
 
-const AuthContext = createContext()
+// Reducer function for handling state changes
+const firebaseReducer = (state, action) => {
+    console.log("State and action is: ",action.payload);
+  switch (action.type) {
+    case "LOGGED_IN_USER":
+      return { ...state, user: action.payload };
+    default:
+      return state;
+  }
+};
 
-
-// context provider
-/*A reducer is a function that determines changes to an application's state. It uses the action it receives to determine this change. A reducer function always takes two arguments: the current state and an action. Based on the action type, the reducer function returns a new state. Reducers are a fundamental concept in Redux, but they can also be used with React's useReducer hook for state management in functional components.
-
- */
+// Context Provider component
 const AuthProvider = ({ children }) => {
-    const [state, dispatch] = useReducer(firebaseReducer, initialState);
+  const [state, dispatch] = useReducer(firebaseReducer, initialState);
+  useEffect(() => {
+    // Subscribe to Firebase auth state changes
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // Get the token result only if the user is logged in
+        console.log("AuthProvider User is: ",user)
 
-    useEffect(()=>{
-        const unsubscribe = auth.onAuthStateChanged(async user=>{
-            if(user){
-                const idTokenResult = await user.getIdTokenResult();
-                dispatch({
-                    type:'LOGGED_IN_USER',
-                    payload: { email: user.email, token: idTokenResult.token }
+        const idTokenResult = await user.getIdTokenResult();
+        console.log("Token is: ",idTokenResult.token);
+        dispatch({
+          type: "LOGGED_IN_USER",
+          payload: { email: user.email, token: idTokenResult.token },
+        });
+      } else {
+        // Dispatch null when no user is logged in
+        dispatch({
+          type: "LOGGED_IN_USER",
+          payload: null,
+        });
+      }
+    });
 
-                })
-            }
-            else{
-                dispatch({
-                    type:'LOGGED_IN_USER',
-                    payload: null
+    // Clean up the subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
-                })
+  // Provide state and dispatch through context to children
+  const value = { state, dispatch };
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
-            }
-        })
-        //cleanup
-        return () => unsubscribe();
-    },[])
-
-    const value = { state, dispatch }
-    return <AuthContext.Provider value={value}>
-        {children}
-    </AuthContext.Provider>
-}
-// export
-
-export {AuthContext,AuthProvider}
+export { AuthContext, AuthProvider };
