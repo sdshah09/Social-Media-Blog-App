@@ -2,8 +2,8 @@ const {gql} = require('apollo-server-express');
 const auth = require('../typeDefs/auth');
 const { authCheck } = require('../helpers/auth'); // Ensure this is the correct path and named import
 
-const me = (parent, args, { req, res }) => {
-    authCheck(req, res);
+const me = async (parent, args, { req, res }) => {
+    await authCheck(req, res);
     return "Shaswat D Shah"; // Ensure this returns a non-null value
 };
 

@@ -22,28 +22,22 @@
 * LETS WRITE SIMPLE AUTH LOGIC FIRST TO UNDERSTAND HOW IT WILL WORK
 */
 
-var admin = require('firebase-admin')
-var serviceAccount = require('../config/fbServiceAccountKey.json')
+var admin = require('firebase-admin');
+
+var serviceAccount = require('../config/fbServiceAccountKey.json');
 
 admin.initializeApp({
-    credential:admin.credential.cert(serviceAccount),
-})
-let authorized = true;
+    credential: admin.credential.cert(serviceAccount)
+    // databaseURL: 'https://gqlreactnode99.firebaseio.com'
+});
 
-exports.authCheck = (req, res, next = (f) => f) => {
-    console.log(req.headers.authtoken)
-    if (!req.headers.authtoken) {
-        // next();
-        throw new Error("Unauthorized");
-    } 
-    const valid = req.headers.authtoken==='secret'
-    if(!valid){
-        throw new Error("Unauthorized")
+exports.authCheck = async (req) => {
+    try {
+        const currentUser = await admin.auth().verifyIdToken(req.headers.authtoken);
+        console.log('CURRENT USER', currentUser);
+        return currentUser;
+    } catch (error) {
+        console.log('AUTH CHECK ERROR', error);
+        throw new Error('Invalid or expired token');
     }
-    else{
-        next();
-    }
-    // else {
-    //     throw new Error("Unauthorized");
-    // }
 };
