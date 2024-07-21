@@ -19,7 +19,7 @@ app.use(bodyParser.json({ limit: "10mb" }));
 // db
 const db = async () => {
   try {
-    const success = await mongoose.connect(process.env.DATABASE_CLOUD, {
+    const success = await mongoose.connect(process.env.DATABASE, {
       useUnifiedTopology: true,
     });
     console.log("db connected");

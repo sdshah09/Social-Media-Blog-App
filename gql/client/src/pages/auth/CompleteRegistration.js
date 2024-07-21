@@ -3,6 +3,16 @@ import { getAuth, signInWithEmailLink, updatePassword } from "firebase/auth";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
+import { gql, useMutation } from "@apollo/client";
+
+const USER_CREATE = gql`
+  mutation userCreate {
+    userCreate {
+      username
+      email
+    }
+  }
+`;
 
 const CompleteRegistration = () => {
   const { dispatch } = useContext(AuthContext);
@@ -10,11 +20,13 @@ const CompleteRegistration = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const auth = getAuth(); // Get the Firebase Auth instance
+  const auth = getAuth();
 
   useEffect(() => {
     setEmail(window.localStorage.getItem("emailForRegistration") || "");
   }, []);
+
+  const [userCreate] = useMutation(USER_CREATE);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,16 +38,10 @@ const CompleteRegistration = () => {
     }
 
     try {
-      // Complete the sign-in
-      const result = await signInWithEmailLink(
-        auth,
-        email,
-        window.location.href
-      );
+      const result = await signInWithEmailLink(auth, email, window.location.href);
       if (result.user) {
-        // Now update the password
         await updatePassword(result.user, password);
-        window.localStorage.removeItem("emailForRegistration"); // Clean up local storage
+        window.localStorage.removeItem("emailForRegistration");
         toast.success("Registration complete and password set!");
         const idTokenResult = await result.user.getIdTokenResult();
         dispatch({
@@ -43,7 +49,9 @@ const CompleteRegistration = () => {
           payload: { email: result.user.email, token: idTokenResult.token },
         });
 
-        navigate("/"); // Redirect to home or another route
+        userCreate();
+
+        navigate("/");
       } else {
         throw new Error("Failed to complete registration");
       }
@@ -70,7 +78,7 @@ const CompleteRegistration = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="form-control"
             placeholder="Enter email"
-            disabled // This should be disabled if you are handling email verification through the link
+            disabled
           />
         </div>
         <div className="form-group">
