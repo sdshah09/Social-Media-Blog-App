@@ -15,7 +15,8 @@ const userCreate = async (parent, args, context) => {
 
     if (user) {
       throw new Error("User already exists");
-    }
+      
+    }   
 
     // Generate a unique username
     const alphabet = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';

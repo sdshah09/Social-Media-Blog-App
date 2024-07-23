@@ -50,6 +50,7 @@ const Login = () => {
       console.error("Error during sign-in: ", error);
       toast.error("Failed to sign in: " + error.message);
       setLoading(false);
+      navigate("/");
     }
   };
 
@@ -84,6 +85,7 @@ const Login = () => {
     } catch (error) {
       console.error("Error during Google sign-in: ", error);
       toast.error("Failed to sign in with Google: " + error.message);
+      navigate("/")
     }
   };
 

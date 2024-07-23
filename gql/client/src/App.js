@@ -1,33 +1,36 @@
-import React, { useContext,useEffect } from "react";
-import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from "@apollo/client";
+import React, { useContext, useEffect } from "react";
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  createHttpLink,
+} from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { Route, Routes } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Nav from "./components/Nav";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import CompleteRegistration from "./pages/auth/CompleteRegistration";
+
 import { ToastContainer } from "react-toastify";
 import { AuthContext } from "./context/authContext";
+import PrivateRoute from "./components/PrivateRoute";
+import PasswordForgot from "./pages/auth/PasswordForgot";
 
 const App = () => {
   const { state } = useContext(AuthContext);
   const { user } = state;
   useEffect(() => {
-    console.log('User state changed:', state.user);
+    console.log("User state changed:", state.user);
   }, [state.user]);
-  
-  
-  // Create an HTTP link that connects to the server.
+
   const httpLink = createHttpLink({
     uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
   });
 
-  // Use setContext to append the auth token to the headers of each request.
   const authLink = setContext((_, { headers }) => {
-    // get the authentication token from context state if it exists
     const token = user ? user.token : "";
-    // return the headers to the context so httpLink can read them
     return {
       headers: {
         ...headers,
@@ -36,9 +39,8 @@ const App = () => {
     };
   });
 
-  // Initialize Apollo Client with the auth link and the http link
   const client = new ApolloClient({
-    link: authLink.concat(httpLink), // Chain it with the http link
+    link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
   });
 
@@ -51,6 +53,14 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/complete-registration" element={<CompleteRegistration />} />
+        <Route 
+          path="/password/forgot" 
+          element={
+            <PrivateRoute>
+              <PasswordForgot />
+            </PrivateRoute>
+          } 
+        />
       </Routes>
     </ApolloProvider>
   );
