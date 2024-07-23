@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
+import AuthForm from "../../components/forms/AuthForm"
 
 const USER_CREATE = gql`
   mutation userCreate($email: String!) {
@@ -92,33 +93,15 @@ const Login = () => {
       <button onClick={googleLogin} className="btn btn-raised btn-danger mt-5">
         Login With Google
       </button>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Email Address</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
-            placeholder="Enter email"
-            disabled={loading}
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
-            placeholder="Enter password"
-            disabled={loading}
-          />
-        </div>
-        <button className="btn btn-raised btn-primary" disabled={loading}>
-          Submit
-        </button>
-      </form>
+      <AuthForm
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        loading={loading}
+        handleSubmit={handleSubmit}
+        showPasswordInput="true"
+      />
     </div>
   );
 };
