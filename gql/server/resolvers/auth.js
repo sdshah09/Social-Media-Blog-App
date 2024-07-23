@@ -1,35 +1,58 @@
-const {gql} = require('apollo-server-express');
-const auth = require('../typeDefs/auth');
-const { authCheck } = require('../helpers/auth'); // Ensure this is the correct path and named import
-const User = require('../models/user')
-// const { customAlphabet } = require('nanoid');
-const me = async (parent, args, { req, res }) => {
-    await authCheck(req, res);
-    // console.log("Request in Auth server is: ",req.headers);
-    return "Shaswat D Shah"; // Ensure this returns a non-null value
-};
+const User = require('../models/user');
 
-const userCreate = async(parent,args,{req})=>{
-    const { customAlphabet } = await import('nanoid');
+const userCreate = async (parent, args, context) => {
+  const { customAlphabet } = await import('nanoid');
 
-    const currentUser = await authCheck(req);
-    const user = await User.findOne({email:currentUser.email})
-    const alphabet = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
-    const length = 8; // You can adjust the length as needed
-    const generate = customAlphabet(alphabet,length) // autogenerates the username if not present
-    console.log("Generate User is: ",user);
-    return user ? user: new User({
-        email: currentUser.email,
-        username:generate()
-    }).save()
+  try {
+    const { email } = args;
 
-}
-module.exports = {
-    Query: {
-        me
-    },
-    Mutation: {
-        userCreate
+    if (!email) {
+      throw new Error("Email is required");
     }
 
+    // Check if the user already exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      throw new Error("User already exists");
+    }
+
+    // Generate a unique username
+    const alphabet = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
+    const generate = customAlphabet(alphabet, 8);
+    const username = generate();
+
+    // Create a new user
+    const newUser = new User({
+      email,
+      username,
+    });
+
+    const savedUser = await newUser.save();
+    console.log("New user created:", savedUser);
+
+    return {
+      username: savedUser.username,
+      email: savedUser.email,
+    };
+  } catch (error) {
+    console.error("Error in userCreate:", error);
+    throw new Error("User creation failed: " + error.message);
+  }
 };
+
+const me = async (parent, args, { req, res }) => {
+  await authCheck(req, res);
+  return "Shaswat D Shah";
+};
+
+const resolvers = {
+  Query: {
+    me,
+  },
+  Mutation: {
+    userCreate,
+  },
+};
+
+module.exports = resolvers;

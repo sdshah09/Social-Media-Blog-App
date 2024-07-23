@@ -1,9 +1,18 @@
 import React, { useState, useContext } from "react";
-import { getAuth, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
-import { auth, googleAuthProvider } from "../../firebase";
 import { AuthContext } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
+import { gql, useMutation } from "@apollo/client";
+
+const USER_CREATE = gql`
+  mutation userCreate($email: String!) {
+    userCreate(email: $email) {
+      username
+      email
+    }
+  }
+`;
 
 const Login = () => {
   const { dispatch } = useContext(AuthContext);
@@ -12,6 +21,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [userCreate] = useMutation(USER_CREATE);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,9 +39,11 @@ const Login = () => {
       });
       window.localStorage.setItem('authToken', idTokenResult.token);
 
+      await userCreate({ variables: { email: user.email } });
+
       console.log("User signed in: ", idTokenResult.token);
       toast.success("Sign-in successful!");
-      // setLoading(false);
+      setLoading(false);
       navigate("/");
     } catch (error) {
       console.error("Error during sign-in: ", error);
@@ -42,13 +55,27 @@ const Login = () => {
   const googleLogin = async () => {
     try {
       const authInstance = getAuth();
-      const result = await signInWithPopup(authInstance, googleAuthProvider);
+      const provider = new GoogleAuthProvider();
+      provider.addScope('profile');
+      provider.addScope('email');
+      const result = await signInWithPopup(authInstance, provider);
       const { user } = result;
       const idTokenResult = await user.getIdTokenResult();
+
+      // Extract email from providerData
+      const email = user.email || (user.providerData && user.providerData.length > 0 && user.providerData[0].email);
+      console.log("Email in Google Login is: ", email);
+
+      if (!email) {
+        throw new Error("Failed to retrieve email from Google login.");
+      }
+
       dispatch({
         type: "LOGGED_IN_USER",
-        payload: { email: user.email, token: idTokenResult.token },
+        payload: { email, token: idTokenResult.token },
       });
+
+      await userCreate({ variables: { email } });
 
       console.log("User signed in with Google: ", user);
       toast.success("Google sign-in successful!");

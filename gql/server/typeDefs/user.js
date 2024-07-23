@@ -6,6 +6,6 @@ module.exports = gql`
         email: String!
     }
     type Mutation {
-        userCreate: UserCreateResponse!
+        userCreate(email: String!):  UserCreateResponse!
     }
 `;
