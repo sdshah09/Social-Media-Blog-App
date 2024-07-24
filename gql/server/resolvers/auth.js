@@ -1,8 +1,8 @@
-const User = require('../models/user');
+const User = require("../models/user");
+const { authCheck } = require("../helpers/auth");
+const {DateTimeResolver} = require('graphql-scalars')
 
 const userCreate = async (parent, args, context) => {
-  const { customAlphabet } = await import('nanoid');
-
   try {
     const { email } = args;
 
@@ -13,8 +13,16 @@ const userCreate = async (parent, args, context) => {
     // Check if the user already exists
     let user = await User.findOne({ email });
 
+    if (user) {
+      // If user exists, return the existing user
+      return {
+        username: user.username,
+        email: user.email,
+      };
+    }
+
     // Generate a unique username
-    const alphabet = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
+    const alphabet = "23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ";
     const generate = customAlphabet(alphabet, 8);
     const username = generate();
 
@@ -37,17 +45,29 @@ const userCreate = async (parent, args, context) => {
   }
 };
 
-const me = async (parent, args, { req, res }) => {
-  await authCheck(req, res);
-  return "Shaswat D Shah";
+const userUpdate = async (parent, args, { req }) => {
+  const currentUser = await authCheck(req);
+  console.log("Args input is: ",args.input);
+  const updateUser = await User.findOneAndUpdate(
+    { email: currentUser.email },
+    { ...args.input },
+    { new: true }
+  ).exec(); // new true sends the new data to the frontend
+  return updateUser;
+};
+
+const profile = async (parent, args, { req}) => {
+  const currentUser = await authCheck(req);
+  return await User.findOne({email:currentUser.email}).exec();
 };
 
 const resolvers = {
   Query: {
-    me,
+    profile,
   },
   Mutation: {
     userCreate,
+    userUpdate,
   },
 };
 

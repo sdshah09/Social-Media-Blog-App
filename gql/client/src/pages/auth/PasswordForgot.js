@@ -13,7 +13,9 @@ const PasswordForgot = () => {
     const auth = getAuth();
     try {
       await sendPasswordResetEmail(auth, email);
-      toast.success(`Email is sent to ${email}. Click the link to reset your password.`);
+      toast.success(
+        `Email is sent to ${email}. Click the link to reset your password.`
+      );
       setEmail("");
       setLoading(false);
     } catch (error) {
@@ -33,7 +35,12 @@ const PasswordForgot = () => {
           <h4>Forgot Password</h4>
         </>
       )}
-      <AuthForm email={email} setEmail={setEmail} loading={loading} handleSubmit={handleSubmit} />
+      <AuthForm
+        email={email}
+        setEmail={setEmail}
+        loading={loading}
+        handleSubmit={handleSubmit}
+      />
     </div>
   );
 };

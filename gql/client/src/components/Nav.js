@@ -2,6 +2,7 @@ import React, { Fragment, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { AuthContext } from "../context/authContext";
+
 const Nav = () => {
   const { state, dispatch } = useContext(AuthContext);
   let navigate = useNavigate();
@@ -35,16 +36,15 @@ const Nav = () => {
 
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
-          {user && (
+          {user && user.email && (
             <li className="nav-item active">
               <Link className="nav-link" to="/profile">
-                Profile <span className="sr-only">(current)</span>
+                {user.email.split('@')[0]} <span className="sr-only">(current)</span>
               </Link>
             </li>
           )}
           {!user && (
             <Fragment>
-              {" "}
               <li className="nav-item active">
                 <Link className="nav-link" to="/login">
                   Login <span className="sr-only">(current)</span>

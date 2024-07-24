@@ -90,7 +90,7 @@ const Login = () => {
         payload: { email, token: idTokenResult.token },
       });
 
-      await userCreate({ variables: { email } });
+      await userCreate({ variables: { email: user.email } });
 
       console.log("User signed in with Google: ", user);
       toast.success("Google sign-in successful!");
