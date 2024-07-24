@@ -1,25 +1,12 @@
-import React, { useState, useMemo, Fragment } from "react";
+import React, { useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@apollo/client";
+import {PROFILE} from '../../graphql/queries'
+import { USER_UPDATE } from "../../graphql/mutations";
 
-const PROFILE = gql`
-  query {
-    profile {
-      _id
-      name
-      username
-      email
-      images {
-        url
-        public_id
-      }
-      about
-      createdAt
-      updatedAt
-    }
-  }
-`;
+const omitTypename = (key, value) => (key === "__typename" ? undefined : value);
+
 const Profile = () => {
   const [values, setValues] = useState({
     username: "",
@@ -34,38 +21,67 @@ const Profile = () => {
   useMemo(() => {
     if (data) {
       console.log(data.profile);
-      setValues({
+      setValues((prevValues) => ({
+        ...prevValues,
         username: data.profile.username,
         name: data.profile.name,
         email: data.profile.email,
         about: data.profile.about,
-        images: data.profile.images,
-      });
+        images: JSON.parse(JSON.stringify(data.profile.images), omitTypename),
+      }));
     }
   }, [data]);
+
+  const [userUpdate] = useMutation(USER_UPDATE, {
+    onCompleted: (data) => {
+      console.log("user update mutation in profile: ", data);
+      toast.success("Profile Updated");
+    },
+    onError: (error) => {
+      console.log("user update error: ", error);
+      toast.error("Profile update failed");
+    },
+  });
+
   const { username, name, email, about, images } = values;
 
-  const handleSubmit = () => {};
-  const handleChange = () => {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Values in handleSubmit: ", values);
+    setLoading(true);
+
+    const { email, ...updateValues } = values;
+
+    userUpdate({ variables: { input: updateValues } }).finally(() =>
+      setLoading(false)
+    );
+  };
+
+  const handleChange = (e) => {
+    setValues({
+      ...values,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleImageChange = () => {
-    //
+    // Handle image change
   };
 
   const profileUpdateForm = () => (
     <form onSubmit={handleSubmit}>
-    <div className="form-group">
+      <div className="form-group">
         <label>Username</label>
         <input
-            type="text"
-            name="username"
-            value={username}
-            onChange={handleChange}
-            className="form-control"
-            placholder="Username"
-            disabled={loading}
+          type="text"
+          name="username"
+          value={username}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Username"
+          disabled={loading}
         />
-    </div>
+      </div>
 
       <div className="form-group">
         <label>Name</label>
@@ -75,7 +91,7 @@ const Profile = () => {
           value={name}
           onChange={handleChange}
           className="form-control"
-          placholder="Name"
+          placeholder="Name"
           disabled={loading}
         />
       </div>
@@ -88,7 +104,7 @@ const Profile = () => {
           value={email}
           onChange={handleChange}
           className="form-control"
-          placholder="Username"
+          placeholder="Email"
           disabled
         />
       </div>
@@ -100,7 +116,7 @@ const Profile = () => {
           accept="image/*"
           onChange={handleImageChange}
           className="form-control"
-          placholder="Image"
+          placeholder="Image"
         />
       </div>
 
@@ -111,7 +127,7 @@ const Profile = () => {
           value={about}
           onChange={handleChange}
           className="form-control"
-          placholder="Username"
+          placeholder="About"
           disabled={loading}
         />
       </div>
@@ -125,8 +141,8 @@ const Profile = () => {
       </button>
     </form>
   );
-  return <div className="container p-5">{profileUpdateForm()}</div>;
 
+  return <div className="container p-5">{profileUpdateForm()}</div>;
 };
 
 export default Profile;

@@ -44,8 +44,4 @@ module.exports = gql`
     userCreate(email: String!): UserCreateResponse!
     userUpdate(input: UserUpdateInput): User!
   }
-
-  type Query {
-    me: String!
-  }
 `; // creating this to merge mutliple typedefs into one for apollo server

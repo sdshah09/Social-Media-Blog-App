@@ -10,15 +10,7 @@ import { AuthContext } from "../../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
 import AuthForm from "../../components/forms/AuthForm";
-
-const USER_CREATE = gql`
-  mutation userCreate($email: String!) {
-    userCreate(email: $email) {
-      username
-      email
-    }
-  }
-`;
+import {USER_CREATE} from '../../graphql/mutations'
 
 const Login = () => {
   const { dispatch } = useContext(AuthContext);
