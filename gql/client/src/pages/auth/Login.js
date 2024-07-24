@@ -45,7 +45,7 @@ const Login = () => {
       console.log("User signed in: ", idTokenResult.token);
       toast.success("Sign-in successful!");
       setLoading(false);
-      navigate("/");
+      navigate("/profile");
     } catch (error) {
       console.error("Error during sign-in: ", error);
       toast.error("Failed to sign in: " + error.message);
@@ -81,7 +81,7 @@ const Login = () => {
 
       console.log("User signed in with Google: ", user);
       toast.success("Google sign-in successful!");
-      navigate("/");
+      navigate("/profile");
     } catch (error) {
       console.error("Error during Google sign-in: ", error);
       toast.error("Failed to sign in with Google: " + error.message);

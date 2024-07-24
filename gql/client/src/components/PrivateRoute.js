@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { AuthContext } from "../context/authContext";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/authContext";
 
 const PrivateRoute = ({ children }) => {
   const { state } = useContext(AuthContext);
@@ -11,11 +10,7 @@ const PrivateRoute = ({ children }) => {
     if (state.user) {
       setUser(true);
     }
-  }, [state.user]);
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  }, [state.user]); // this will run whenever the user logs in or logs out
 
   const navLinks = () => (
     <nav>
@@ -26,7 +21,7 @@ const PrivateRoute = ({ children }) => {
           </Link>
         </li>
         <li className="nav-item">
-          <Link className="nav-link" to="/update/password">
+          <Link className="nav-link" to="/password/update">
             Password
           </Link>
         </li>
@@ -39,17 +34,19 @@ const PrivateRoute = ({ children }) => {
     </nav>
   );
 
-  return (
+  return user ? (
     <div className="container-fluid pt-5">
       <div className="row">
         <div className="col-md-4">
           {navLinks()}
         </div>
         <div className="col-md-8">
-          {children ? children : <Outlet />}
+          {children}
         </div>
       </div>
     </div>
+  ) : (
+    <h4>Loading....</h4>
   );
 };
 

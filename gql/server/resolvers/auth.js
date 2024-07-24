@@ -13,11 +13,6 @@ const userCreate = async (parent, args, context) => {
     // Check if the user already exists
     let user = await User.findOne({ email });
 
-    if (user) {
-      throw new Error("User already exists");
-      
-    }   
-
     // Generate a unique username
     const alphabet = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
     const generate = customAlphabet(alphabet, 8);

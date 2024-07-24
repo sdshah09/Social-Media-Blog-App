@@ -35,6 +35,13 @@ const Nav = () => {
 
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
+          {user && (
+            <li className="nav-item active">
+              <Link className="nav-link" to="/profile">
+                Profile <span className="sr-only">(current)</span>
+              </Link>
+            </li>
+          )}
           {!user && (
             <Fragment>
               {" "}
@@ -57,9 +64,6 @@ const Nav = () => {
               </button>
             </li>
           )}
-          <li className="nav-item">
-            <span className="nav-link disabled">Disabled</span>
-          </li>
         </ul>
         <form className="form-inline my-2 my-lg-0">
           <input

@@ -16,7 +16,9 @@ import CompleteRegistration from "./pages/auth/CompleteRegistration";
 import { ToastContainer } from "react-toastify";
 import { AuthContext } from "./context/authContext";
 import PrivateRoute from "./components/PrivateRoute";
-import PasswordForgot from "./pages/auth/PasswordForgot";
+import PasswordUpdate from "./pages/auth/PasswordUpdate";
+import Profile from "./pages/auth/Profile";
+import Post from "./pages/post/Post";
 
 const App = () => {
   const { state } = useContext(AuthContext);
@@ -52,14 +54,33 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/complete-registration" element={<CompleteRegistration />} />
-        <Route 
-          path="/password/forgot" 
+        <Route
+          path="/complete-registration"
+          element={<CompleteRegistration />}
+        />
+        <Route
+          path="/password/update"
           element={
             <PrivateRoute>
-              <PasswordForgot />
+              <PasswordUpdate />
             </PrivateRoute>
-          } 
+          }
+        />
+        <Route
+          path="/post"
+          element={
+            <PrivateRoute>
+              <Post />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
         />
       </Routes>
     </ApolloProvider>
