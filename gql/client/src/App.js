@@ -17,6 +17,8 @@ import { ToastContainer } from "react-toastify";
 import { AuthContext } from "./context/authContext";
 import PrivateRoute from "./components/PrivateRoute";
 import PasswordUpdate from "./pages/auth/PasswordUpdate";
+import PasswordForgot from "./pages/auth/PasswordForgot";
+
 import Profile from "./pages/auth/Profile";
 import Post from "./pages/post/Post";
 
@@ -82,6 +84,7 @@ const App = () => {
             </PrivateRoute>
           }
         />
+        <Route path="/password/forgot" element={<PasswordForgot />} />
       </Routes>
     </ApolloProvider>
   );

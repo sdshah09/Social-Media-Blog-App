@@ -1,10 +1,15 @@
 import React, { useState, useContext } from "react";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
-import AuthForm from "../../components/forms/AuthForm"
+import AuthForm from "../../components/forms/AuthForm";
 
 const USER_CREATE = gql`
   mutation userCreate($email: String!) {
@@ -31,14 +36,18 @@ const Login = () => {
 
     try {
       const authInstance = getAuth();
-      const result = await signInWithEmailAndPassword(authInstance, email, password);
+      const result = await signInWithEmailAndPassword(
+        authInstance,
+        email,
+        password
+      );
       const { user } = result;
       const idTokenResult = await user.getIdTokenResult();
       dispatch({
         type: "LOGGED_IN_USER",
         payload: { email: user.email, token: idTokenResult.token },
       });
-      window.localStorage.setItem('authToken', idTokenResult.token);
+      window.localStorage.setItem("authToken", idTokenResult.token);
 
       await userCreate({ variables: { email: user.email } });
 
@@ -58,14 +67,18 @@ const Login = () => {
     try {
       const authInstance = getAuth();
       const provider = new GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
+      provider.addScope("profile");
+      provider.addScope("email");
       const result = await signInWithPopup(authInstance, provider);
       const { user } = result;
       const idTokenResult = await user.getIdTokenResult();
 
       // Extract email from providerData
-      const email = user.email || (user.providerData && user.providerData.length > 0 && user.providerData[0].email);
+      const email =
+        user.email ||
+        (user.providerData &&
+          user.providerData.length > 0 &&
+          user.providerData[0].email);
       console.log("Email in Google Login is: ", email);
 
       if (!email) {
@@ -85,7 +98,7 @@ const Login = () => {
     } catch (error) {
       console.error("Error during Google sign-in: ", error);
       toast.error("Failed to sign in with Google: " + error.message);
-      navigate("/")
+      navigate("/");
     }
   };
 
@@ -104,6 +117,9 @@ const Login = () => {
         handleSubmit={handleSubmit}
         showPasswordInput="true"
       />
+      <Link className="text-danger-float-right" to="/password/forgot">
+        Forgot Password
+      </Link>
     </div>
   );
 };
