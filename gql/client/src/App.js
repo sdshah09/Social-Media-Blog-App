@@ -22,6 +22,9 @@ import PasswordForgot from "./pages/auth/PasswordForgot";
 import Profile from "./pages/auth/Profile";
 import Post from "./pages/post/Post";
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 const App = () => {
   const { state } = useContext(AuthContext);
   const { user } = state;

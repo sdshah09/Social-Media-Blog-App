@@ -69,7 +69,7 @@ async function startServer() {
       req.body.image,
       (result) => {
         res.send({
-          url: result.url,
+          url: result.secure_url,
           public_id: result.public_id,
         });
       },

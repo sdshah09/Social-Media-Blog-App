@@ -6,6 +6,9 @@ import { USER_UPDATE } from "../../graphql/mutations";
 import Resizer from "react-image-file-resizer";
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
+import { Modal } from "react-bootstrap";
+import UserProfile from '../../components/forms/UserProfile';
+import "./Profile.css";
 
 const omitTypename = (key, value) => (key === "__typename" ? undefined : value);
 
@@ -19,6 +22,8 @@ const Profile = () => {
     images: [],
   });
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const { data } = useQuery(PROFILE);
   useMemo(() => {
@@ -89,7 +94,7 @@ const Profile = () => {
                 },
               }
             );
-            console.log('CLOUDINARY UPLOAD', response);
+            console.log("CLOUDINARY UPLOAD", response);
             setValues((prevValues) => ({
               ...prevValues,
               images: [
@@ -100,7 +105,7 @@ const Profile = () => {
             setLoading(false);
           } catch (error) {
             setLoading(false);
-            console.log('CLOUDINARY_UPLOAD_FAILED', error);
+            console.log("CLOUDINARY_UPLOAD_FAILED", error);
             toast.error("Image upload failed");
           }
         },
@@ -109,81 +114,101 @@ const Profile = () => {
     }
   };
 
-  const profileUpdateForm = () => (
-    <form onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label>Username</label>
-        <input
-          type="text"
-          name="username"
-          value={username}
-          onChange={handleChange}
-          className="form-control"
-          placeholder="Username"
-          disabled={loading}
-        />
-      </div>
+  const handleImageRemove = async (id) => {
+    try {
+      setLoading(true);
+      await axios.post(
+        `${process.env.REACT_APP_REST_ENDPOINT}/removeimage`,
+        { public_id: id },
+        {
+          headers: {
+            authtoken: state.user.token,
+          },
+        }
+      );
+      const filteredImages = images.filter((item) => item.public_id !== id);
+      setValues({ ...values, images: filteredImages });
+      setLoading(false);
+      toast.success("Image removed successfully");
+    } catch (error) {
+      setLoading(false);
+      console.error("Error removing image", error);
+      toast.error("Failed to remove image");
+    }
+  };
 
-      <div className="form-group">
-        <label>Name</label>
-        <input
-          type="text"
-          name="name"
-          value={name}
-          onChange={handleChange}
-          className="form-control"
-          placeholder="Name"
-          disabled={loading}
-        />
-      </div>
+  const openImageModal = (image) => {
+    setSelectedImage(image);
+    setShowModal(true);
+  };
 
-      <div className="form-group">
-        <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          value={email}
-          onChange={handleChange}
-          className="form-control"
-          placeholder="Email"
-          disabled
+  return (
+    <div className="container profile-container">
+      <div className="profile-header">
+        <img
+          src={
+            images.length > 0
+              ? images[0].url
+              : "https://via.placeholder.com/150"
+          }
+          alt="Profile"
+          className="profile-image"
         />
+        <div className="profile-details">
+          <h2>{username}</h2>
+          <p>{name}</p>
+          <p>{about}</p>
+        </div>
       </div>
-
+      <UserProfile
+        {...values}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        loading={loading}
+      />
       <div className="form-group">
-        <label>Image</label>
+        <label>Upload Image</label>
         <input
           type="file"
           accept="image/*"
           onChange={handleImageChange}
           className="form-control"
-          placeholder="Image"
         />
       </div>
-
-      <div className="form-group">
-        <label>About</label>
-        <textarea
-          name="about"
-          value={about}
-          onChange={handleChange}
-          className="form-control"
-          placeholder="About"
-          disabled={loading}
-        />
+      <div className="image-grid">
+        {images.map((image) => (
+          <div key={image.public_id} className="image-item">
+            <img
+              src={image.url}
+              alt={image.public_id}
+              className="image-preview"
+              onClick={() => openImageModal(image)}
+            />
+            <button
+              onClick={() => handleImageRemove(image.public_id)}
+              className="btn btn-danger btn-sm"
+              disabled={loading}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
       </div>
 
-      <button
-        className="btn btn-primary"
-        type="submit"
-        disabled={!email || loading}
-      >
-        Submit
-      </button>
-    </form>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Image</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <img
+            src={selectedImage?.url}
+            alt={selectedImage?.public_id}
+            className="img-fluid"
+          />
+        </Modal.Body>
+      </Modal>
+    </div>
   );
-
-  return <div className="container p-5">{profileUpdateForm()}</div>;
 };
 
 export default Profile;
