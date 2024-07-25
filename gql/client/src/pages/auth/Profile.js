@@ -1,13 +1,16 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useContext } from "react";
 import { toast } from "react-toastify";
 import { useQuery, useMutation } from "@apollo/client";
-import { gql } from "@apollo/client";
-import {PROFILE} from '../../graphql/queries'
+import { PROFILE } from "../../graphql/queries";
 import { USER_UPDATE } from "../../graphql/mutations";
+import Resizer from "react-image-file-resizer";
+import axios from "axios";
+import { AuthContext } from "../../context/authContext";
 
 const omitTypename = (key, value) => (key === "__typename" ? undefined : value);
 
 const Profile = () => {
+  const { state } = useContext(AuthContext);
   const [values, setValues] = useState({
     username: "",
     name: "",
@@ -64,8 +67,46 @@ const Profile = () => {
     });
   };
 
-  const handleImageChange = () => {
-    // Handle image change
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      Resizer.imageFileResizer(
+        file,
+        300, // max width
+        300, // max height
+        "JPEG", // compress format
+        100, // quality
+        0, // rotation
+        async (uri) => {
+          try {
+            setLoading(true);
+            const response = await axios.post(
+              `${process.env.REACT_APP_REST_ENDPOINT}/uploadimages`,
+              { image: uri },
+              {
+                headers: {
+                  authtoken: state.user.token,
+                },
+              }
+            );
+            console.log('CLOUDINARY UPLOAD', response);
+            setValues((prevValues) => ({
+              ...prevValues,
+              images: [
+                ...prevValues.images,
+                { url: response.data.url, public_id: response.data.public_id },
+              ],
+            }));
+            setLoading(false);
+          } catch (error) {
+            setLoading(false);
+            console.log('CLOUDINARY_UPLOAD_FAILED', error);
+            toast.error("Image upload failed");
+          }
+        },
+        "base64" // output type
+      );
+    }
   };
 
   const profileUpdateForm = () => (

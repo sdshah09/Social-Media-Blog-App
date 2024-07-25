@@ -22,28 +22,43 @@
 * LETS WRITE SIMPLE AUTH LOGIC FIRST TO UNDERSTAND HOW IT WILL WORK
 */
 
-var admin = require('firebase-admin');
+var admin = require("firebase-admin");
 
-var serviceAccount = require('../config/fbServiceAccountKey.json');
+var serviceAccount = require("../config/fbServiceAccountKey.json");
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-    // databaseURL: 'https://gqlreactnode99.firebaseio.com'
+  credential: admin.credential.cert(serviceAccount),
+  // databaseURL: 'https://gqlreactnode99.firebaseio.com'
 });
 
 exports.authCheck = async (req) => {
-    try {
-        if (!req.headers.authtoken) {
-            console.log("No authtoken provided, skipping auth check");
-            return null;
-        }    
-        console.log("Request headers in helpers are: ",req.headers);
-        console.log("Authtoken is: ",req.headers.authtoken);
-        const currentUser = await admin.auth().verifyIdToken(req.headers.authtoken);
-        console.log('CURRENT USER', currentUser);
-        return currentUser;
-    } catch (error) {
-        console.log('AUTH CHECK ERROR', error);
-        throw new Error('Invalid or expired token');
+  try {
+    if (!req.headers.authtoken) {
+      console.log("No authtoken provided, skipping auth check");
+      return null;
     }
+    console.log("Request headers in helpers are: ", req.headers);
+    console.log("Authtoken is: ", req.headers.authtoken);
+    const currentUser = await admin.auth().verifyIdToken(req.headers.authtoken);
+    console.log("CURRENT USER", currentUser);
+    return currentUser;
+  } catch (error) {
+    console.log("AUTH CHECK ERROR", error);
+    throw new Error("Invalid or expired token");
+  }
+};
+
+exports.authCheckMiddleware = (req, res, next) => {
+    if (req.headers.authtoken) {
+    console.log("Request headers in helpers are: ", req.headers);
+    console.log("Authtoken is: ", req.headers.authtoken);
+    admin
+      .auth()
+      .verifyIdToken(req.headers.authtoken)
+      .then((result) => {
+        next();
+      }).catch ((error)=>console.log(error));
+  }  else{
+    res.json({ error: "Unauthorized" });
+  }
 };
