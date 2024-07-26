@@ -8,6 +8,7 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import Users from "./pages/Users";
 import Nav from "./components/Nav";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -16,14 +17,15 @@ import CompleteRegistration from "./pages/auth/CompleteRegistration";
 import { ToastContainer } from "react-toastify";
 import { AuthContext } from "./context/authContext";
 import PrivateRoute from "./components/PrivateRoute";
+import PublicRoute from "./components/PublicRoute";
+import SingleUser from "./pages/SingleUser";
 import PasswordUpdate from "./pages/auth/PasswordUpdate";
 import PasswordForgot from "./pages/auth/PasswordForgot";
 
 import Profile from "./pages/auth/Profile";
 import Post from "./pages/post/Post";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
   const { state } = useContext(AuthContext);
@@ -57,8 +59,25 @@ const App = () => {
       <ToastContainer />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/user" element={<SingleUser />} />
+
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
         <Route
           path="/complete-registration"
           element={<CompleteRegistration />}

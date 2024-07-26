@@ -1,22 +1,27 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
+import LoadingToRedirect from "./LoadingToRedirect";
 
 const PrivateRoute = ({ children }) => {
   const { state } = useContext(AuthContext);
   const [user, setUser] = useState(false);
+  let navigate = useNavigate();
 
   useEffect(() => {
     if (state.user) {
       setUser(true);
+    } else {
+      setUser(false);
+      navigate("/login");
     }
-  }, [state.user]); // this will run whenever the user logs in or logs out
+  }, [state.user, navigate]);
 
   const navLinks = () => (
     <nav>
       <ul className="nav flex-column">
         <li className="nav-item">
-          <Link className="nav-link" to="/update/profile">
+          <Link className="nav-link" to="/profile">
             Profile
           </Link>
         </li>
@@ -37,16 +42,12 @@ const PrivateRoute = ({ children }) => {
   return user ? (
     <div className="container-fluid pt-5">
       <div className="row">
-        <div className="col-md-4">
-          {navLinks()}
-        </div>
-        <div className="col-md-8">
-          {children}
-        </div>
+        <div className="col-md-4">{navLinks()}</div>
+        <div className="col-md-8">{children}</div>
       </div>
     </div>
   ) : (
-    <h4>Loading....</h4>
+    <LoadingToRedirect path="/login" />
   );
 };
 

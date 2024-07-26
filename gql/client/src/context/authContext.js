@@ -11,7 +11,7 @@ const AuthContext = createContext(initialState);
 
 // Reducer function for handling state changes
 const firebaseReducer = (state, action) => {
-    console.log("State and action is: ",action.payload);
+  console.log("State and action is: ", action.payload);
   switch (action.type) {
     case "LOGGED_IN_USER":
       return { ...state, user: action.payload };
@@ -23,19 +23,33 @@ const firebaseReducer = (state, action) => {
 // Context Provider component
 const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(firebaseReducer, initialState);
+
   useEffect(() => {
     // Subscribe to Firebase auth state changes
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        // Get the token result only if the user is logged in
-        console.log("AuthProvider User is: ",user)
+        try {
+          // Get the token result only if the user is logged in
+          const idTokenResult = await user.getIdTokenResult();
+          console.log("AuthProvider User is: ", user);
+          console.log("Token is: ", idTokenResult.token);
 
-        const idTokenResult = await user.getIdTokenResult();
-        console.log("Token is: ",idTokenResult.token);
-        dispatch({
-          type: "LOGGED_IN_USER",
-          payload: { email: user.email, token: idTokenResult.token },
-        });
+          // Check if user email is null
+          if (!user.email) {
+            console.warn("User email is null, attempting to refresh user info.");
+            await user.reload();
+            user = auth.currentUser;
+            console.log("Updated user after reload: ", user);
+          }
+
+          dispatch({
+            type: "LOGGED_IN_USER",
+            payload: { email: user.email, token: idTokenResult.token },
+          });
+        } catch (error) {
+          console.error("Error retrieving user token:", error);
+          // Handle token retrieval error, if necessary
+        }
       } else {
         // Dispatch null when no user is logged in
         dispatch({

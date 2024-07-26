@@ -23,6 +23,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
 
   const { data } = useQuery(PROFILE);
+  console.log("Data in Profile is: ",data);
   useMemo(() => {
     if (data) {
       console.log(data.profile);
@@ -68,6 +69,7 @@ const Profile = () => {
       [e.target.name]: e.target.value,
     });
   };
+  console.log("Values in Profile are: ",values);
 
   return (
     <div className="container profile-container">

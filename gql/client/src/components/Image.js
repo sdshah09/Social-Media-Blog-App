@@ -4,17 +4,12 @@ const Image = ({ image, handleImageRemove = (f) => f, openImageModal, loading })
   <div className="image-item">
     <img
       src={image.url}
+      key={image.public_id}
       alt={image.public_id}
-      className="image-preview"
+      style={{height:'100px'}}
+      className="img-thumbnail m-3"
       onClick={() => openImageModal(image)}
     />
-    <button
-      onClick={() => handleImageRemove(image.public_id)}
-      className="btn btn-danger btn-sm"
-      disabled={loading}
-    >
-      Remove
-    </button>
   </div>
 );
 

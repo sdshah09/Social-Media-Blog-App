@@ -2,22 +2,13 @@ import React, { useState, useEffect, useContext } from "react";
 import { ApolloClient, InMemoryCache, gql, useLazyQuery, useQuery } from '@apollo/client';
 import { AuthContext } from '../context/authContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import {GET_POSTS} from '../graphql/queries'
 // Initialize Apollo Client
 const client = new ApolloClient({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
   cache: new InMemoryCache()
 });
 
-const GET_POSTS = gql`
-  {
-    allPosts {
-      id
-      title
-      description
-    }
-  }
-`;
 
 const Home = () => {
   const { data, loading, error } = useQuery(GET_POSTS);

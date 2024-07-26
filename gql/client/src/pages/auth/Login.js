@@ -10,7 +10,7 @@ import { AuthContext } from "../../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
 import AuthForm from "../../components/forms/AuthForm";
-import {USER_CREATE} from '../../graphql/mutations'
+import { USER_CREATE } from "../../graphql/mutations";
 
 const Login = () => {
   const { dispatch } = useContext(AuthContext);
@@ -81,12 +81,12 @@ const Login = () => {
         type: "LOGGED_IN_USER",
         payload: { email, token: idTokenResult.token },
       });
-
-      await userCreate({ variables: { email: user.email } });
+      console.log("User email before userCreate is: ",email)
+      await userCreate({ variables: { email: email } });
 
       console.log("User signed in with Google: ", user);
       toast.success("Google sign-in successful!");
-      navigate("/profile");
+      navigate("/password/update");
     } catch (error) {
       console.error("Error during Google sign-in: ", error);
       toast.error("Failed to sign in with Google: " + error.message);
@@ -96,10 +96,11 @@ const Login = () => {
 
   return (
     <div className="container p-5">
-      {loading ? <h4>Loading...</h4> : <h4>Sign In</h4>}
-      <button onClick={googleLogin} className="btn btn-raised btn-danger mt-5">
+      <button onClick={googleLogin} className="btn btn-raised btn-danger">
         Login With Google
       </button>
+
+      {loading ? <h4>Loading...</h4> : <h4>Sign In</h4>}
       <AuthForm
         email={email}
         setEmail={setEmail}

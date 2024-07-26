@@ -36,10 +36,16 @@ const Nav = () => {
 
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
+          <li className="nav-item active">
+            <Link className="nav-link" to="/users">
+              Users <span className="sr-only">(current)</span>
+            </Link>
+          </li>
           {user && user.email && (
             <li className="nav-item active">
               <Link className="nav-link" to="/profile">
-                {user.email.split('@')[0]} <span className="sr-only">(current)</span>
+                {user.email.split("@")[0]}{" "}
+                <span className="sr-only">(current)</span>
               </Link>
             </li>
           )}

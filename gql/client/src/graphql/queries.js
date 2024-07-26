@@ -9,3 +9,22 @@ export const PROFILE = gql`
   }
   ${USER_INFO}
 `;
+export const ALL_USERS = gql`
+  query {
+    allUsers {
+      ...userInfo
+    }
+  }
+  ${USER_INFO}
+`;
+
+export const GET_POSTS = gql`
+  {
+    allPosts {
+      id
+      title
+      description
+    }
+  }
+`;
+

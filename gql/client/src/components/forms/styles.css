@@ -1,0 +1,79 @@
+/* styles.css */
+.container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin-top: 50px;
+  }
+  
+  h4 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .btn-google {
+    background-color: #db4437;
+    color: #fff;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .btn-google:hover {
+    background-color: #c23321;
+  }
+  
+  .btn-submit {
+    background-color: #007bff;
+    color: #fff;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .btn-submit:hover {
+    background-color: #0056b3;
+  }
+  
+  .forgot-password {
+    text-align: center;
+    margin-top: 15px;
+    display: block;
+    color: #007bff;
+  }
+  
+  .forgot-password:hover {
+    text-decoration: underline;
+    color: #0056b3;
+  }
+  
+  .form-group label {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .form-control {
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .mt-3 {
+    margin-top: 1rem;
+  }
+  

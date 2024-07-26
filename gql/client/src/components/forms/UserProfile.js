@@ -1,4 +1,4 @@
-import React from "react";
+import act from "react";
 
 const UserProfile = ({handleSubmit,handleChange,username,name,email,about,loading}) => (
   <form onSubmit={handleSubmit} className="profile-form">

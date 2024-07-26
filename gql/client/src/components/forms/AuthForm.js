@@ -1,5 +1,5 @@
 import React from "react";
-
+import './styles.css'
 const AuthForm = ({
   email = "",
   password = "",
@@ -38,12 +38,17 @@ const AuthForm = ({
           />
         </div>
       )}
-      <button
-        className="btn btn-raised btn-primary"
-        disabled={loading}
-      >
-        Submit
-      </button>
+      <div className="text-center mt-3">
+        <button
+          className="btn btn-primary btn-submit"
+          type="submit"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          Submit
+        </button>
+      </div>
+
     </form>
   );
 };
