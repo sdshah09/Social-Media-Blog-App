@@ -56,7 +56,7 @@ const Profile = () => {
     console.log("Values in handleSubmit: ", values);
     setLoading(true);
 
-    const { email, ...updateValues } = values;
+    const { ...updateValues } = values;
 
     userUpdate({ variables: { input: updateValues } }).finally(() =>
       setLoading(false)

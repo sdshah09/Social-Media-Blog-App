@@ -1,12 +1,18 @@
-import React, { useContext, useState } from 'react';
-import Resizer from 'react-image-file-resizer';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { AuthContext } from '../context/authContext';
-import { Modal } from 'react-bootstrap';
-import Image from './Image';
+import React, { useContext, useState } from "react";
+import Resizer from "react-image-file-resizer";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { AuthContext } from "../context/authContext";
+import { Modal } from "react-bootstrap";
+import Image from "./Image";
 
-const FileUpload = ({ setValues, setLoading, values, loading }) => {
+const FileUpload = ({
+  setValues,
+  setLoading,
+  values,
+  loading,
+  singleUpload = false,
+}) => {
   const { state } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -19,12 +25,11 @@ const FileUpload = ({ setValues, setLoading, values, loading }) => {
         file,
         300, // max width
         300, // max height
-        'JPEG', // compress format
+        "JPEG", // compress format
         100, // quality
         0, // rotation
         async (uri) => {
           try {
-            setLoading(true);
             const response = await axios.post(
               `${process.env.REACT_APP_REST_ENDPOINT}/uploadimages`,
               { image: uri },
@@ -34,22 +39,38 @@ const FileUpload = ({ setValues, setLoading, values, loading }) => {
                 },
               }
             );
-            console.log('CLOUDINARY UPLOAD', response);
-            setValues((prevValues) => ({
-              ...prevValues,
-              images: [
-                ...prevValues.images,
-                { url: response.data.url, public_id: response.data.public_id },
-              ],
-            }));
+            console.log("CLOUDINARY UPLOAD", response);
+
+            if (singleUpload) {
+              // Single upload: replace the image
+              setValues({
+                ...values,
+                image: {
+                  url: response.data.url,
+                  public_id: response.data.public_id,
+                },
+              });
+            } else {
+              // Multiple uploads: add new image to the array
+              setValues((prevValues) => ({
+                ...prevValues,
+                images: [
+                  ...prevValues.images,
+                  {
+                    url: response.data.url,
+                    public_id: response.data.public_id,
+                  },
+                ],
+              }));
+            }
             setLoading(false);
           } catch (error) {
             setLoading(false);
-            console.log('CLOUDINARY_UPLOAD_FAILED', error);
-            toast.error('Image upload failed');
+            console.log("CLOUDINARY_UPLOAD_FAILED", error);
+            toast.error("Image upload failed");
           }
         },
-        'base64' // output type
+        "base64" // output type
       );
     }
   };
@@ -66,14 +87,29 @@ const FileUpload = ({ setValues, setLoading, values, loading }) => {
           },
         }
       );
-      const filteredImages = values.images.filter((item) => item.public_id !== id);
-      setValues({ ...values, images: filteredImages });
       setLoading(false);
-      toast.success('Image removed successfully');
+
+      if (singleUpload) {
+        // Single upload: clear the image
+        setValues({
+          ...values,
+          image: {
+            url: "",
+            public_id: "",
+          },
+        });
+      } else {
+        // Multiple uploads: remove the image from the array
+        const filteredImages = values.images.filter(
+          (item) => item.public_id !== id
+        );
+        setValues({ ...values, images: filteredImages });
+      }
+      toast.success("Image removed successfully");
     } catch (error) {
       setLoading(false);
-      console.error('Error removing image', error);
-      toast.error('Failed to remove image');
+      console.error("Error removing image", error);
+      toast.error("Failed to remove image");
     }
   };
 
@@ -94,21 +130,32 @@ const FileUpload = ({ setValues, setLoading, values, loading }) => {
         />
       </div>
       <div className="image-grid">
-        {values.images.map((image) => (
-          <div key={image.public_id} className="image-item-wrapper">
-            <Image
-              image={image}
-              openImageModal={openImageModal}
-            />
-            <button
-              onClick={() => handleImageRemove(image.public_id)}
-              className="btn btn-danger btn-sm mt-2"
-              disabled={loading}
-            >
-              Remove
-            </button>
-          </div>
-        ))}
+        {singleUpload
+          ? values.image &&
+            values.image.url && (
+              <div key={values.image.public_id} className="image-item-wrapper">
+                <Image image={values.image} openImageModal={openImageModal} />
+                <button
+                  onClick={() => handleImageRemove(values.image.public_id)}
+                  className="btn btn-danger btn-sm mt-2"
+                  disabled={loading}
+                >
+                  Remove
+                </button>
+              </div>
+            )
+          : values.images && values.images.map((image) => (
+              <div key={image.public_id} className="image-item-wrapper">
+                <Image image={image} openImageModal={openImageModal} />
+                <button
+                  onClick={() => handleImageRemove(image.public_id)}
+                  className="btn btn-danger btn-sm mt-2"
+                  disabled={loading}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
       </div>
 
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>

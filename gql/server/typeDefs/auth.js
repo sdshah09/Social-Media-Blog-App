@@ -44,7 +44,7 @@ module.exports = gql`
     allUsers: [User!]
   }
   type Mutation {
-    userCreate: UserCreateResponse!
+    userCreate(email: String!): UserCreateResponse!
     userUpdate(input: UserUpdateInput): User!
   }
 `;

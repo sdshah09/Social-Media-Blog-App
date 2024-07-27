@@ -91,7 +91,7 @@ const App = () => {
           }
         />
         <Route
-          path="/post"
+          path="/post/create"
           element={
             <PrivateRoute>
               <Post />

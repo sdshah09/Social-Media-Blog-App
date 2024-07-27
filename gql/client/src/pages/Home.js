@@ -77,11 +77,11 @@ const Home = () => {
       <div className="row p-5">
         {posts &&
         posts.map(p => (
-          <div className="col-md-4 mb-4" key={p.id}>
+          <div className="col-md-4 mb-4" key={p._id}>
             <div className="card h-100 shadow">
               <div className="card-body">
-                <h4 className="card-title">{p.title}</h4>
-                <p className="card-text">{p.description}</p>
+                <h4 className="card-title">@{p.postedBy.username}</h4>
+                <p className="card-text">{p.content}</p>
               </div>
             </div>
           </div>
@@ -99,6 +99,7 @@ const Home = () => {
         </div>
       )}
       <hr />
+
       <div className="alert alert-secondary">
         <pre>{JSON.stringify(state.user, null, 2)}</pre>
       </div>

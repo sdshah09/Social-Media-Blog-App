@@ -31,7 +31,7 @@ const PrivateRoute = ({ children }) => {
           </Link>
         </li>
         <li className="nav-item">
-          <Link className="nav-link" to="/create/post">
+          <Link className="nav-link" to="/post/create">
             Post
           </Link>
         </li>

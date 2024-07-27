@@ -1,40 +1,29 @@
-import { gql } from '@apollo/client';
-import { USER_INFO } from './fragments';
+import { gql } from "@apollo/client";
+import { POST_DATA, USER_INFO } from "./fragments";
 
 export const PROFILE = gql`
-    query {
-        profile {
-            ...userInfo
-        }
+  query {
+    profile {
+      ...userInfo
     }
-    ${USER_INFO}
+  }
+  ${USER_INFO}
 `;
 
 export const GET_ALL_POSTS = gql`
   {
     allPosts {
-      _id
-      content
-      image {
-        url
-        public_id
-      }
-      postedBy {
-        _id
-        username
-      }
+      ...postData
     }
   }
+  ${POST_DATA}
 `;
-
 
 export const ALL_USERS = gql`
-    query {
-        allUsers {
-            ...userInfo
-        }
+  query {
+    allUsers {
+      ...userInfo
     }
-    ${USER_INFO}
+  }
+  ${USER_INFO}
 `;
-
-
