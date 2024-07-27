@@ -1,18 +1,15 @@
 const { gql } = require("apollo-server-express");
 
 module.exports = gql`
-  #scalar type
-  scalar DateTime
-  type UserCreateResponse {
-    username: String!
-    email: String!
+  # scalar type
+  scalar DataTime
+  type Query {
+    me: String!
   }
-
   type Image {
     url: String
     public_id: String
   }
-
   type User {
     _id: ID!
     username: String
@@ -20,30 +17,34 @@ module.exports = gql`
     email: String
     images: [Image]
     about: String
-    createdAt: DateTime
-    updatedAt: DateTime
+    createdAt: DataTime
+    updatedAt: DataTime
   }
-
-  #input type
+  # custom type
+  type UserCreateResponse {
+    username: String!
+    email: String!
+  }
+  # input type
   input ImageInput {
     url: String
     public_id: String
   }
-
-  #input type
+  # input type
   input UserUpdateInput {
     username: String
     name: String
+    email: String!
     images: [ImageInput]
     about: String
   }
   type Query {
     profile: User!
-    publicProfile(username: String!):User!
+    publicProfile(username: String!): User!
     allUsers: [User!]
   }
   type Mutation {
-    userCreate(email: String!): UserCreateResponse!
+    userCreate: UserCreateResponse!
     userUpdate(input: UserUpdateInput): User!
   }
-`; // creating this to merge mutliple typedefs into one for apollo server
+`;

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { ApolloClient, InMemoryCache, gql, useLazyQuery, useQuery } from '@apollo/client';
 import { AuthContext } from '../context/authContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {GET_POSTS} from '../graphql/queries'
+import {GET_ALL_POSTS} from '../graphql/queries'
 // Initialize Apollo Client
 const client = new ApolloClient({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
@@ -11,8 +11,8 @@ const client = new ApolloClient({
 
 
 const Home = () => {
-  const { data, loading, error } = useQuery(GET_POSTS);
-  const [fetchPosts, { data: lazyData }] = useLazyQuery(GET_POSTS);
+  const { data, loading, error } = useQuery(GET_ALL_POSTS);
+  const [fetchPosts, { data: lazyData }] = useLazyQuery(GET_ALL_POSTS);
   const [posts, setPosts] = useState([]);
   const [loadingState, setLoadingState] = useState(true);
   const [errorState, setErrorState] = useState(null);
@@ -32,7 +32,7 @@ const Home = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      client.query({ query: GET_POSTS })
+      client.query({ query: GET_ALL_POSTS })
         .then(result => {
           setPosts(result.data.allPosts);
           setLoadingState(false);
