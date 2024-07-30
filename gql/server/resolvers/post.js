@@ -6,7 +6,15 @@ const User = require("../models/user");
 // queries
 
 const allPosts = async (parent, args) => {
-  return await Post.find({}).populate("postedBy", "_id username").exec();
+  console.log("Args in All Posts is: ",args.page);
+  const currentPage = args.page || 1;
+  const perPage = 3;
+
+  return await Post.find({})
+    .skip((currentPage - 1) * perPage) // this is for pagination and currentpage - 1 because first page starts from 0-perPage
+    .populate("postedBy", "_id username")
+    .limit(perPage)
+    .exec();
 };
 
 const postByUser = async (parent, args, { req }) => {
@@ -25,6 +33,9 @@ const singlePost = async (parent, args) => {
     .populate("postedBy", "_id username")
     .exec();
 };
+
+const totalPosts = async (parent, args) =>
+  await Post.find({}).estimatedDocumentCount().exec();
 // mutation
 const postCreate = async (parent, args, { req }) => {
   const currentUser = await authCheck(req);
@@ -66,7 +77,7 @@ const postUpdate = async (parent, args, { req }) => {
     args.input._id,
     { ...args.input },
     { new: true }
-  ).populate('postedBy', '_id username');
+  ).populate("postedBy", "_id username");
 
   return updatePost;
 };
@@ -87,6 +98,7 @@ module.exports = {
     allPosts,
     postByUser,
     singlePost,
+    totalPosts,
   },
   Mutation: {
     postCreate,
