@@ -1,0 +1,23 @@
+.private-route-container {
+    padding-top: 5rem; /* Adjust as needed */
+  }
+  
+  .nav-container {
+    background-color: #f8f9fa; /* Light background color for navigation */
+    padding: 1rem 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .nav-links .nav-item .nav-link {
+    color: #007bff; /* Primary color for links */
+    margin-right: 1rem; /* Space between links */
+  }
+  
+  .nav-links .nav-item .nav-link:hover {
+    color: #0056b3; /* Darker color on hover */
+  }
+  
+  .content-container {
+    padding: 2rem;
+  }
+  

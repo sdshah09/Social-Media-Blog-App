@@ -1,8 +1,13 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useContext } from "react";
 import { toast } from "react-toastify";
-import { AuthContext } from "../../context/authContext";
 import { useQuery, useMutation } from "@apollo/client";
 import FileUpload from "../../components/FileUpload";
+import { POST_CREATE } from "../../graphql/mutations";
+import { POST_BY_USER } from "../../graphql/queries";
+import PostCard from "../../components/PostCard"; // Assuming you have a PostCard component
+import { AuthContext } from "../../context/authContext";
+import { POST_DELETE } from "../../graphql/mutations";
+
 const initialState = {
   content: "",
   image: {
@@ -14,13 +19,64 @@ const initialState = {
 const Post = () => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
+  const {
+    data: postsData,
+    loading: postsLoading,
+    error: postsError,
+  } = useQuery(POST_BY_USER);
 
   // Destructure values
   const { content, image } = values;
 
-  const handleSubmit = (e) => {
+  // Mutation
+  const [postCreate] = useMutation(POST_CREATE, {
+    onCompleted: (data) => {
+      console.log(data);
+      setValues(initialState);
+      setLoading(false);
+      toast.success("Post Created");
+    },
+    onError: (err) => {
+      console.error(err);
+      setLoading(false);
+      toast.error("Post creation failed");
+    },
+    update: (cache, { data: { postCreate } }) => {
+      // Update the cache to reflect the newly created post
+      const { postByUser } = cache.readQuery({ query: POST_BY_USER });
+      cache.writeQuery({
+        query: POST_BY_USER,
+        data: { postByUser: [postCreate, ...postByUser] },
+      });
+    },
+  });
+
+  const [postDelete] = useMutation(POST_DELETE, {
+    update: ({ data }) => {
+      console.log("post delete mutation", data);
+      toast.error("Post deleted");
+    },
+    onError: (err) => {
+      console.log(err);
+      toast.error("Post delete failed");
+    },
+  });
+
+  const handleDelete = async (postId) => {
+    let answer = window.confirm("Delete?");
+    if (answer) {
+      setLoading(true);
+      postDelete({
+        variables: { postId },
+        refetchQueries: [{ query: POST_BY_USER }],
+      });
+      setLoading(false);
+    }
+  };
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
+    setLoading(true);
+    await postCreate({ variables: { input: values } });
   };
 
   const handleChange = (e) => {
@@ -57,7 +113,7 @@ const Post = () => {
           <h4 className="text-danger">Loading...</h4>
         ) : (
           <Fragment>
-            <div className="com-md-3">
+            <div className="col-md-3">
               <FileUpload
                 values={values}
                 loading={loading}
@@ -66,13 +122,32 @@ const Post = () => {
                 singleUpload={true}
               />
             </div>
-
-            <h4>Create</h4>
-            {createForm()}
+            <div className="col-md-9">
+              <h4>Create</h4>
+              {createForm()}
+            </div>
           </Fragment>
         )}
 
-        {JSON.stringify(values.content)}
+        <div className="row p-5">
+          {postsLoading ? (
+            <p>Loading posts...</p>
+          ) : postsError ? (
+            <p>Error loading posts: {postsError.message}</p>
+          ) : (
+            postsData &&
+            postsData.postByUser.map((p) => (
+              <div className="col-md-3 mb-3" key={p._id}>
+                <PostCard
+                  post={p}
+                  handleDelete={handleDelete}
+                  showUpdateButton={true}
+                  showDeleteButton={true}
+                />
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

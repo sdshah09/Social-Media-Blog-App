@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import LoadingToRedirect from "./LoadingToRedirect";
+import "./PrivateRoute.css"; // Custom CSS file for additional styles
 
 const PrivateRoute = ({ children }) => {
   const { state } = useContext(AuthContext);
@@ -18,7 +19,7 @@ const PrivateRoute = ({ children }) => {
   }, [state.user, navigate]);
 
   const navLinks = () => (
-    <nav>
+    <nav className="nav-links">
       <ul className="nav flex-column">
         <li className="nav-item">
           <Link className="nav-link" to="/profile">
@@ -40,10 +41,10 @@ const PrivateRoute = ({ children }) => {
   );
 
   return user ? (
-    <div className="container-fluid pt-5">
+    <div className="container-fluid private-route-container">
       <div className="row">
-        <div className="col-md-4">{navLinks()}</div>
-        <div className="col-md-8">{children}</div>
+        <div className="col-md-2 nav-container">{navLinks()}</div>
+        <div className="col-md-10 content-container">{children}</div>
       </div>
     </div>
   ) : (

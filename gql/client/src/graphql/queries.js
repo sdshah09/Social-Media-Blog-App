@@ -27,3 +27,22 @@ export const ALL_USERS = gql`
   }
   ${USER_INFO}
 `;
+
+export const POST_BY_USER = gql`
+  query {
+    postByUser {
+      ...postData
+    }
+  }
+  ${POST_DATA}
+`;
+
+export const SINGLE_POST = gql`
+  query singlePost($postId:String!){
+    singlePost(postId:$postId) {
+      ...postData
+    }
+  }
+  ${POST_DATA}
+`;
+

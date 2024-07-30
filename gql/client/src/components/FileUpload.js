@@ -133,24 +133,43 @@ const FileUpload = ({
         {singleUpload
           ? values.image &&
             values.image.url && (
-              <div key={values.image.public_id} className="image-item-wrapper">
+              <div
+                key={values.image.public_id}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  marginBottom: "15px",
+                }}
+              >
                 <Image image={values.image} openImageModal={openImageModal} />
                 <button
                   onClick={() => handleImageRemove(values.image.public_id)}
                   className="btn btn-danger btn-sm mt-2"
                   disabled={loading}
+                  style={{ marginTop: "10px" }}
                 >
                   Remove
                 </button>
               </div>
             )
-          : values.images && values.images.map((image) => (
-              <div key={image.public_id} className="image-item-wrapper">
+          : values.images &&
+            values.images.map((image) => (
+              <div
+                key={image.public_id}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  marginBottom: "15px",
+                }}
+              >
                 <Image image={image} openImageModal={openImageModal} />
                 <button
                   onClick={() => handleImageRemove(image.public_id)}
                   className="btn btn-danger btn-sm mt-2"
                   disabled={loading}
+                  style={{ marginTop: "10px" }}
                 >
                   Remove
                 </button>

@@ -24,7 +24,8 @@ import PasswordForgot from "./pages/auth/PasswordForgot";
 
 import Profile from "./pages/auth/Profile";
 import Post from "./pages/post/Post";
-
+import PostUpdate from "./pages/post/PostUpdate";
+import SinglePost from "./pages/post/SinglePost"
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
@@ -61,6 +62,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/users" element={<Users />} />
         <Route path="/user" element={<SingleUser />} />
+        <Route path="/post/:postId" element={<SinglePost />} />
 
         <Route
           path="/register"
@@ -98,6 +100,15 @@ const App = () => {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/post/update/:postId"
+          element={
+            <PrivateRoute>
+              <PostUpdate />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path="/profile"
           element={

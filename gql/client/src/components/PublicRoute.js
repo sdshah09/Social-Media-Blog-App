@@ -6,7 +6,7 @@ const PublicRoute = ({ children }) => {
     const { state } = useContext(AuthContext);
     let navigate = useNavigate();
 
-    useEffect(() => {
+useEffect(() => {
         if (state.user) {
             navigate("/profile");
         }

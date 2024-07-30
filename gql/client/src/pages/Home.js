@@ -1,14 +1,20 @@
 import React, { useState, useEffect, useContext } from "react";
-import { ApolloClient, InMemoryCache, gql, useLazyQuery, useQuery } from '@apollo/client';
-import { AuthContext } from '../context/authContext';
-import { useNavigate, useLocation } from 'react-router-dom';
-import {GET_ALL_POSTS} from '../graphql/queries'
+import {
+  ApolloClient,
+  InMemoryCache,
+  gql,
+  useLazyQuery,
+  useQuery,
+} from "@apollo/client";
+import { AuthContext } from "../context/authContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import { GET_ALL_POSTS } from "../graphql/queries";
+import PostCard from "../components/PostCard";
 // Initialize Apollo Client
 const client = new ApolloClient({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 });
-
 
 const Home = () => {
   const { data, loading, error } = useQuery(GET_ALL_POSTS);
@@ -25,19 +31,20 @@ const Home = () => {
 
   const updateUserName = () => {
     dispatch({
-      type: 'LOGGED_IN_USER',
-      payload: 'Shaswat Shah'
+      type: "LOGGED_IN_USER",
+      payload: "Shaswat Shah",
     });
   };
 
   useEffect(() => {
     if (isLoggedIn) {
-      client.query({ query: GET_ALL_POSTS })
-        .then(result => {
+      client
+        .query({ query: GET_ALL_POSTS })
+        .then((result) => {
           setPosts(result.data.allPosts);
           setLoadingState(false);
         })
-        .catch(err => {
+        .catch((err) => {
           setErrorState(err);
           setLoadingState(false);
         });
@@ -49,13 +56,21 @@ const Home = () => {
   if (!isLoggedIn) {
     return (
       <div className="container">
-        <div className="row justify-content-center align-items-center" style={{ height: '80vh' }}>
+        <div
+          className="row justify-content-center align-items-center"
+          style={{ height: "80vh" }}
+        >
           <div className="col-md-6 text-center">
             <div className="card shadow">
               <div className="card-body">
                 <h2 className="card-title mb-4">Welcome to Our Blog</h2>
-                <p className="card-text mb-4">Please log in to view posts and interact with our community.</p>
-                <button onClick={() => navigate('/login')} className="btn btn-primary btn-lg">
+                <p className="card-text mb-4">
+                  Please log in to view posts and interact with our community.
+                </p>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="btn btn-primary btn-lg"
+                >
                   Log In
                 </button>
                 <p className="mt-3">
@@ -70,22 +85,18 @@ const Home = () => {
   }
 
   if (loading || loadingState) return <p>Loading...</p>;
-  if (error || errorState) return <p>Error: {error ? error.message : errorState.message}</p>;
+  if (error || errorState)
+    return <p>Error: {error ? error.message : errorState.message}</p>;
 
   return (
     <div className="container">
       <div className="row p-5">
         {posts &&
-        posts.map(p => (
-          <div className="col-md-4 mb-4" key={p._id}>
-            <div className="card h-100 shadow">
-              <div className="card-body">
-                <h4 className="card-title">@{p.postedBy.username}</h4>
-                <p className="card-text">{p.content}</p>
-              </div>
+          posts.map((p) => (
+            <div className="col-md-4 mb-4" key={p._id}>
+              <PostCard post={p} />
             </div>
-          </div>
-        ))}
+          ))}
       </div>
       <div className="row p-5">
         <button onClick={() => fetchPosts()} className="btn btn-primary">
@@ -113,6 +124,6 @@ const Home = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Home;
