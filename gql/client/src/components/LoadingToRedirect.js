@@ -1,6 +1,5 @@
 import React, {useEffect,useState} from 'react'
-import { useNavigate } from 'react-router'
-
+import { useNavigate } from 'react-router';
 const LoadingToRedirect = ({path}) => {
     const [count,setCount] = useState(5)
     let navigate = useNavigate()

@@ -1,26 +1,30 @@
-const express = require("express"); // importing express
+const express = require("express");
 const { ApolloServer } = require("apollo-server-express");
-const http = require("http");
+const { createServer } = require('http');
 const path = require("path");
 const { loadFilesSync } = require("@graphql-tools/load-files");
 const { mergeTypeDefs, mergeResolvers } = require("@graphql-tools/merge");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
+const { PubSub } = require("graphql-subscriptions");
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const { useServer } = require('graphql-ws/lib/use/ws');
+const { WebSocketServer } = require('ws');
 
-require("dotenv").config(); // able to use environment variables from .env file
-const { authCheckMiddleware } = require("./helpers/auth"); // Ensure this is the correct path and named import
+require("dotenv").config();
+const { authCheckMiddleware } = require("./helpers/auth");
 
-// Express server
-const app = express(); // express = request response handler
+const app = express();
+const pubsub = new PubSub();
+
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 
-// db
 const db = async () => {
   try {
-    const success = await mongoose.connect(process.env.DATABASE, {
+    await mongoose.connect(process.env.DATABASE, {
       useUnifiedTopology: true,
     });
     console.log("db connected");
@@ -29,42 +33,44 @@ const db = async () => {
   }
 };
 
-// Execute database function
 db();
 
-const typesArray = loadFilesSync(path.join(__dirname, "./typeDefs")); // path to all typedefs files
+const typesArray = loadFilesSync(path.join(__dirname, "./typeDefs"));
 const resolversArray = loadFilesSync(path.join(__dirname, "./resolvers"));
 const typeDefs = mergeTypeDefs(typesArray);
 const resolvers = mergeResolvers(resolversArray);
 
-// Create a GraphQL server
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
 async function startServer() {
   const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req, res }) => ({ req, res }), // Ensure context is passed correctly
+    schema,
+    context: ({ req, res }) => ({ req, res, pubsub }),
+    plugins: [{
+      serverWillStart: async () => {
+        return {
+          async drainServer() {
+            wsServer.close();
+          }
+        }
+      }
+    }],
   });
 
   await apolloServer.start();
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: true });
 
-  const httpserver = http.createServer(app); // This will work with REST as well as GraphQL
-
-  // REST endpoint
-  app.get("/rest", authCheckMiddleware,(req, res) => {
-    // REST is an endpoint
-    res.json({
-      data: "Shaswat Shah",
-    });
+  app.get("/rest", authCheckMiddleware, (req, res) => {
+    res.json({ data: "Shaswat Shah" });
   });
 
-  // cloudinar config
   cloudinary.config({
-    cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
-    api_key:process.env.CLOUDINARY_API_KEY,
-    api_secret:process.env.CLOUDINARY_API_SECRET
-  })
-  app.post("/uploadimages", authCheckMiddleware,(req, res) => {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
+  app.post("/uploadimages", authCheckMiddleware, (req, res) => {
     cloudinary.uploader.upload(
       req.body.image,
       (result) => {
@@ -74,13 +80,12 @@ async function startServer() {
         });
       },
       {
-        public_id: `${Date.now()}`, // public name
-        resource_type: "auto", //JPEG,PNG
+        public_id: `${Date.now()}`,
+        resource_type: "auto",
       }
     );
   });
 
-  // remove image
   app.post("/removeimage", (req, res) => {
     let image_id = req.body.public_id;
     cloudinary.uploader.destroy(image_id, (error, result) => {
@@ -88,16 +93,25 @@ async function startServer() {
       res.send("ok");
     });
   });
-  // Port
-  // nodemon makes the changes in real-time and whenever we make changes we don't need to restart the server
-  // When we make changes in env file we make sure to restart the server
-  httpserver.listen(process.env.PORT, function () {
-    console.log(`server is ready at http://localhost:${process.env.PORT}`);
-    console.log(
-      `graphql server is ready at http://localhost:${process.env.PORT}${apolloServer.graphqlPath}`
-    );
+
+  const httpServer = createServer(app);
+
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/graphql',
+  });
+
+  useServer({
+    schema,
+    context: () => ({ pubsub }),
+    onConnect: () => {
+      console.log("WebSocket connection established");
+    },
+  }, wsServer);
+
+  httpServer.listen(process.env.PORT, () => {
+    console.log(`Server is running on http://localhost:${process.env.PORT}${apolloServer.graphqlPath}`);
   });
 }
 
-// Start the server
 startServer();

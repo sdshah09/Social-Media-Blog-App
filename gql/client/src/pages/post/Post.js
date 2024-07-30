@@ -53,7 +53,7 @@ const Post = () => {
 
   const [postDelete] = useMutation(POST_DELETE, {
     update: ({ data }) => {
-      console.log("post delete mutation", data);
+      console.log("post delete mutationcre", data);
       toast.error("Post deleted");
     },
     onError: (err) => {

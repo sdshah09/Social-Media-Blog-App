@@ -2,6 +2,10 @@ const { gql } = require("apollo-server-express");
 const { authCheck } = require("../helpers/auth");
 const Post = require("../models/post");
 const User = require("../models/user");
+const { PubSub } = require("graphql-subscriptions");
+
+const POST_ADDED = "POST_ADDED";
+const pubsub = new PubSub();
 
 // queries
 const allPosts = async (parent, args) => {
@@ -43,7 +47,7 @@ const search = async (parent, args) => {
 };
 
 // mutation
-const postCreate = async (parent, args, { req }) => {
+const postCreate = async (parent, args, { req, pubsub }) => {
   const currentUser = await authCheck(req);
   if (args.input.content.trim() === "") throw new Error("Content is required");
 
@@ -61,6 +65,7 @@ const postCreate = async (parent, args, { req }) => {
     path: "postedBy",
     select: "_id username",
   });
+  pubsub.publish(POST_ADDED, { postAdded: newPost });
 
   return newPost;
 };
@@ -111,5 +116,11 @@ module.exports = {
     postCreate,
     postUpdate,
     postDelete,
+  },
+  Subscription: {
+    postAdded: {
+      subscribe: (parent, args, { pubsub }) =>
+        pubsub.asyncIterator("POST_ADDED"),
+    },
   },
 };
