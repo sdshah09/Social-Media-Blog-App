@@ -21,11 +21,13 @@ import PublicRoute from "./components/PublicRoute";
 import SingleUser from "./pages/SingleUser";
 import PasswordUpdate from "./pages/auth/PasswordUpdate";
 import PasswordForgot from "./pages/auth/PasswordForgot";
+import SearchResult from "./components/SearchResults";
 
 import Profile from "./pages/auth/Profile";
 import Post from "./pages/post/Post";
 import PostUpdate from "./pages/post/PostUpdate";
 import SinglePost from "./pages/post/SinglePost"
+
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
@@ -63,6 +65,7 @@ const App = () => {
         <Route path="/users" element={<Users />} />
         <Route path="/user" element={<SingleUser />} />
         <Route path="/post/:postId" element={<SinglePost />} />
+        <Route path="/search/:query" element={<SearchResult />} />
 
         <Route
           path="/register"
