@@ -71,27 +71,22 @@ async function startServer() {
   });
 
   app.post("/uploadimages", authCheckMiddleware, (req, res) => {
-    cloudinary.uploader.upload(
-      req.body.image,
-      (result) => {
-        res.send({
-          url: result.secure_url,
-          public_id: result.public_id,
-        });
-      },
-      {
+    cloudinary.uploader.upload(req.body.image, { 
         public_id: `${Date.now()}`,
         resource_type: "auto",
-      }
-    );
+      })
+      .then(result => res.send({
+        url: result.secure_url,
+        public_id: result.public_id,
+      }))
+      .catch(error => res.status(500).send(error));
   });
 
   app.post("/removeimage", (req, res) => {
     let image_id = req.body.public_id;
-    cloudinary.uploader.destroy(image_id, (error, result) => {
-      if (error) return res.json({ success: false, error });
-      res.send("ok");
-    });
+    cloudinary.uploader.destroy(image_id)
+      .then(result => res.send("ok"))
+      .catch(error => res.status(500).json({ success: false, error }));
   });
 
   const httpServer = createServer(app);
@@ -110,7 +105,7 @@ async function startServer() {
   }, wsServer);
 
   httpServer.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}Logi${apolloServer.graphqlPath}`);
+    console.log(`Server is running on http://localhost:${process.env.PORT}${apolloServer.graphqlPath}`);
   });
 }
 
