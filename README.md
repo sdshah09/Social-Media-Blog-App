@@ -112,27 +112,6 @@ Check out the live demo [here](https://gql-client-55882c1fa0c4.herokuapp.com/).
 - Interact with other users' posts by commenting and liking.
 - Edit or delete your posts as needed.
 
-## Project Structure
-
-├── client/ # React frontend
-│ ├── public/
-│ └── src/
-│ ├── components/
-│ ├── contexts/
-│ ├── firebase/
-│ ├── pages/
-│ └── App.js
-├── server/ # Node.js backend
-│ ├── config/
-│ ├── models/
-│ ├── resolvers/
-│ ├── schema/
-│ └── index.js
-├── .gitignore
-├── README.md
-└── package.json
-
-
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
