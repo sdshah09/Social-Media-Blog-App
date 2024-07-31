@@ -114,7 +114,6 @@ Check out the live demo [here](https://gql-client-55882c1fa0c4.herokuapp.com/).
 
 ## Project Structure
 
-Social-Media-Blog/
 ├── client/ # React frontend
 │ ├── public/
 │ └── src/
