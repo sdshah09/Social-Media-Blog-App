@@ -9,7 +9,7 @@ A social media blog-type application built with the MERN stack (MongoDB, Express
 - Upload and manage images with Cloudinary
 - User profiles and social features
 - Real-time updates with GraphQL subscriptions
-- Responsive design
+- Pagination for blog posts and comments
 
 ## Demo
 
@@ -111,6 +111,8 @@ Check out the live demo [here](https://gql-client-55882c1fa0c4.herokuapp.com/).
 - Upload images to your post via Cloudinary integration.
 - Interact with other users' posts by commenting and liking.
 - Edit or delete your posts as needed.
+- Navigate through blog posts and comments with pagination.
+- Enjoy real-time updates with Apollo Client subscriptions.
 
 ## Contributing
 
