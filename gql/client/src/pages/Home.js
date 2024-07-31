@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery, useSubscription } from "@apollo/client";
 import { AuthContext } from "../context/authContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { GET_ALL_POSTS, TOTAL_POSTS } from "../graphql/queries";
 import PostCard from "../components/PostCard";
 import PostPagination from "../components/PostPagination"; // Importing the PostPagination component
-
+import { toast } from "react-toastify";
+import {
+  POST_ADDED,
+  POST_UPDATED,
+  POST_DELETED,
+} from "../graphql/subscriptions";
 const Home = () => {
   const [page, setPage] = useState(1);
   const [pageGroup, setPageGroup] = useState(0); // State for tracking the current page group
@@ -25,6 +30,78 @@ const Home = () => {
   const location = useLocation();
 
   const isLoggedIn = state.user !== null;
+  //subscription
+  const { data: newPostData } = useSubscription(POST_ADDED, {
+    onSubscriptionData: async ({
+      client: { cache },
+      subscriptionData: { data },
+    }) => {
+      // console.log(data)
+      // readQuery from cache
+      const { allPosts } = cache.readQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+      });
+      // console.log(allPosts)
+
+      // write back to cache
+      cache.writeQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+        data: {
+          allPosts: [data.postAdded, ...allPosts],
+        },
+      });
+      // refetch all posts to update ui
+      fetchPosts({
+        variables: { page },
+        refetchQueries: [{ query: GET_ALL_POSTS, variables: { page } }],
+      });
+      // show toast notification
+      toast.success("New post!");
+    },
+  });
+
+  const { data: updatedPost } = useSubscription(POST_UPDATED, {
+    onSubscriptionData: () => {
+      toast.success("Post updated!");
+    },
+  });
+
+  const { data: deletedPost } = useSubscription(POST_DELETED, {
+    onSubscriptionData: async ({
+      client: { cache },
+      subscriptionData: { data },
+    }) => {
+      // console.log(data)
+      // readQuery from cache
+      const { allPosts } = cache.readQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+      });
+      // console.log(allPosts)
+
+      let filteredPosts = allPosts.filter(
+        (p) => p._id !== data.postDeleted._id
+      );
+
+      // write back to cache
+      cache.writeQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+        data: {
+          allPosts: filteredPosts,
+        },
+      });
+      // refetch all posts to update ui
+      fetchPosts({
+        variables: { page },
+        refetchQueries: [{ query: GET_ALL_POSTS, variables: { page } }],
+      });
+      // show toast notification
+      toast.error("Post deleted!");
+    },
+  });
 
   const updateUserName = () => {
     dispatch({
@@ -50,6 +127,13 @@ const Home = () => {
   useEffect(() => {
     fetchPosts({ variables: { page } });
   }, [page, fetchPosts]);
+
+  useEffect(() => {
+    if (newPostData) {
+      console.log("New post added:", newPostData.postAdded); // Debugging log
+      setPosts((prevPosts) => [newPostData.postAdded, ...prevPosts]);
+    }
+  }, [newPostData]);
 
   if (!isLoggedIn) {
     return (
@@ -125,7 +209,7 @@ const Home = () => {
       )}
       <hr />
 
-      <div className="alert alert-secondary">
+      {/* <div className="alert alert-secondary">
         <pre>{JSON.stringify(state.user, null, 2)}</pre>
       </div>
       <hr />
@@ -136,6 +220,9 @@ const Home = () => {
       <div className="alert alert-light">
         <pre>{JSON.stringify(location, null, 2)}</pre>
       </div>
+      <div className="alert alert-light">
+        <pre>{JSON.stringify(newPostData, null, 2)}</pre>
+      </div> */}
     </div>
   );
 };

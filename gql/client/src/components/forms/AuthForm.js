@@ -1,5 +1,6 @@
 import React from "react";
-import './styles.css'
+import './styles.css';
+
 const AuthForm = ({
   email = "",
   password = "",
@@ -11,7 +12,7 @@ const AuthForm = ({
   hideInputemail = false,
 }) => {
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="auth-form">
       {!hideInputemail && (
         <div className="form-group">
           <label>Email Address</label>
@@ -48,7 +49,6 @@ const AuthForm = ({
           Submit
         </button>
       </div>
-
     </form>
   );
 };

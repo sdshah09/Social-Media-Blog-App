@@ -36,5 +36,7 @@ module.exports = gql`
     # subscriptions
     type Subscription {
         postAdded: Post
+        postUpdated: Post
+        postDeleted: Post
     }
 `;

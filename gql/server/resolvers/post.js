@@ -1,15 +1,16 @@
-const { gql } = require("apollo-server-express");
 const { authCheck } = require("../helpers/auth");
 const Post = require("../models/post");
 const User = require("../models/user");
 const { PubSub } = require("graphql-subscriptions");
 
-const POST_ADDED = "POST_ADDED";
 const pubsub = new PubSub();
 
-// queries
+const POST_ADDED = "POST_ADDED";
+const POST_UPDATED = "POST_UPDATED";
+const POST_DELETED = "POST_DELETED";
+
+// Queries
 const allPosts = async (parent, args) => {
-  console.log("Args in All Posts is: ", args.page);
   const currentPage = args.page || 1;
   const perPage = 3;
 
@@ -46,7 +47,7 @@ const search = async (parent, args) => {
     .exec();
 };
 
-// mutation
+// Mutations
 const postCreate = async (parent, args, { req, pubsub }) => {
   const currentUser = await authCheck(req);
   if (args.input.content.trim() === "") throw new Error("Content is required");
@@ -70,7 +71,7 @@ const postCreate = async (parent, args, { req, pubsub }) => {
   return newPost;
 };
 
-const postUpdate = async (parent, args, { req }) => {
+const postUpdate = async (parent, args, { req, pubsub }) => {
   const currentUser = await authCheck(req);
   if (args.input.content.trim() === "") throw new Error("Content is required");
 
@@ -82,16 +83,17 @@ const postUpdate = async (parent, args, { req }) => {
   if (currentUserFromDb._id.toString() !== postToUpdate.postedBy._id.toString())
     throw new Error("Unauthorized user");
 
-  let updatePost = await Post.findByIdAndUpdate(
+  let updatedPost = await Post.findByIdAndUpdate(
     args.input._id,
     { ...args.input },
     { new: true }
   ).populate("postedBy", "_id username");
+  pubsub.publish(POST_UPDATED, { postUpdated: updatedPost });
 
-  return updatePost;
+  return updatedPost;
 };
 
-const postDelete = async (parent, args, { req }) => {
+const postDelete = async (parent, args, { req, pubsub }) => {
   const currentUser = await authCheck(req);
   const currentUserFromDb = await User.findOne({
     email: currentUser.email,
@@ -101,7 +103,22 @@ const postDelete = async (parent, args, { req }) => {
     throw new Error("Unauthorized user");
 
   let deletedPost = await Post.findByIdAndDelete({ _id: args.postId }).exec();
+  pubsub.publish(POST_DELETED, { postDeleted: deletedPost });
+
   return deletedPost;
+};
+
+// Subscriptions
+const postAdded = {
+  subscribe: (parent, args, { pubsub }) => pubsub.asyncIterator(POST_ADDED),
+};
+
+const postUpdated = {
+  subscribe: (parent, args, { pubsub }) => pubsub.asyncIterator(POST_UPDATED),
+};
+
+const postDeleted = {
+  subscribe: (parent, args, { pubsub }) => pubsub.asyncIterator(POST_DELETED),
 };
 
 module.exports = {
@@ -118,9 +135,8 @@ module.exports = {
     postDelete,
   },
   Subscription: {
-    postAdded: {
-      subscribe: (parent, args, { pubsub }) =>
-        pubsub.asyncIterator("POST_ADDED"),
-    },
+    postAdded,
+    postUpdated,
+    postDeleted,
   },
 };

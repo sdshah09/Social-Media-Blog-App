@@ -42,7 +42,7 @@ const App = () => {
   // 1. Create WebSocket link
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: process.env.REACT_APP_WS_ENDPOINT,
+      url: process.env.REACT_APP_GRAPHQL_WS_ENDPOINT,
       options: {
         reconnect: true,
       },
@@ -114,7 +114,7 @@ const App = () => {
           path="/login"
           element={
             <PublicRoute>
-              <Login />
+              <Login /> 
             </PublicRoute>
           }
         />

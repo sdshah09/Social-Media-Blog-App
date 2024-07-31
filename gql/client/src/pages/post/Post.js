@@ -53,7 +53,7 @@ const Post = () => {
 
   const [postDelete] = useMutation(POST_DELETE, {
     update: ({ data }) => {
-      console.log("post delete mutationcre", data);
+      console.log("post delete mutation", data);
       toast.error("Post deleted");
     },
     onError: (err) => {
@@ -137,7 +137,7 @@ const Post = () => {
           ) : (
             postsData &&
             postsData.postByUser.map((p) => (
-              <div className="col-md-3 mb-3" key={p._id}>
+              <div className="col-md-6 p-5" key={p._id}>
                 <PostCard
                   post={p}
                   handleDelete={handleDelete}

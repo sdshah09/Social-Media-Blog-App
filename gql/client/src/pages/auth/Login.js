@@ -12,6 +12,8 @@ import { gql, useMutation } from "@apollo/client";
 import AuthForm from "../../components/forms/AuthForm";
 import { USER_CREATE } from "../../graphql/mutations";
 
+import "./Login.css";  // Import your CSS file
+
 const Login = () => {
   const { dispatch } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -95,24 +97,30 @@ const Login = () => {
   };
 
   return (
-    <div className="container p-5">
-      <button onClick={googleLogin} className="btn btn-raised btn-danger">
-        Login With Google
-      </button>
+    <div className="container p-5 d-flex justify-content-center align-items-center min-vh-100">
+      <div className="login-container">
+        <div className="text-center mb-4">
+          <button onClick={googleLogin} className="btn btn-raised btn-danger">
+            Login With Google
+          </button>
+        </div>
 
-      {loading ? <h4>Loading...</h4> : <h4>Sign In</h4>}
-      <AuthForm
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        loading={loading}
-        handleSubmit={handleSubmit}
-        showPasswordInput="true"
-      />
-      <Link className="text-danger-float-right" to="/password/forgot">
-        Forgot Password
-      </Link>
+        {loading ? <h4>Loading...</h4> : <h4 className="text-center">Sign In</h4>}
+        <AuthForm
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          loading={loading}
+          handleSubmit={handleSubmit}
+          showPasswordInput={true}
+        />
+        <div className="text-right mt-2">
+          <Link className="text-danger" to="/password/forgot">
+            Forgot Password
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };
