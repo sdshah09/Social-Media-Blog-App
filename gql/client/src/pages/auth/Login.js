@@ -12,8 +12,6 @@ import { gql, useMutation } from "@apollo/client";
 import AuthForm from "../../components/forms/AuthForm";
 import { USER_CREATE } from "../../graphql/mutations";
 
-import "./Login.css";  // Import your CSS file
-
 const Login = () => {
   const { dispatch } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -45,12 +43,10 @@ const Login = () => {
 
       await userCreate({ variables: { email: user.email } });
 
-      console.log("User signed in: ", idTokenResult.token);
       toast.success("Sign-in successful!");
       setLoading(false);
       navigate("/profile");
     } catch (error) {
-      console.error("Error during sign-in: ", error);
       toast.error("Failed to sign in: " + error.message);
       setLoading(false);
       navigate("/");
@@ -67,45 +63,45 @@ const Login = () => {
       const { user } = result;
       const idTokenResult = await user.getIdTokenResult();
 
-      // Extract email from providerData
-      const email =
-        user.email ||
-        (user.providerData &&
-          user.providerData.length > 0 &&
-          user.providerData[0].email);
-      console.log("Email in Google Login is: ", email);
-
-      if (!email) {
-        throw new Error("Failed to retrieve email from Google login.");
-      }
-
       dispatch({
         type: "LOGGED_IN_USER",
-        payload: { email, token: idTokenResult.token },
+        payload: { email: user.email, token: idTokenResult.token },
       });
-      console.log("User email before userCreate is: ",email)
-      await userCreate({ variables: { email: email } });
 
-      console.log("User signed in with Google: ", user);
+      await userCreate({ variables: { email: user.email } });
+
       toast.success("Google sign-in successful!");
       navigate("/password/update");
     } catch (error) {
-      console.error("Error during Google sign-in: ", error);
       toast.error("Failed to sign in with Google: " + error.message);
       navigate("/");
     }
   };
 
   return (
-    <div className="container p-5 d-flex justify-content-center align-items-center min-vh-100">
-      <div className="login-container">
-        <div className="text-center mb-4">
-          <button onClick={googleLogin} className="btn btn-raised btn-danger">
-            Login With Google
-          </button>
-        </div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        padding: "2rem",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "400px",
+          backgroundColor: "#f8f9fa",
+          padding: "2rem",
+          borderRadius: "8px",
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <h4 style={{ textAlign: "center" }}>
+          {loading ? "Loading..." : "Sign In"}
+        </h4>
 
-        {loading ? <h4>Loading...</h4> : <h4 className="text-center">Sign In</h4>}
         <AuthForm
           email={email}
           setEmail={setEmail}
@@ -115,11 +111,31 @@ const Login = () => {
           handleSubmit={handleSubmit}
           showPasswordInput={true}
         />
-        <div className="text-right mt-2">
-          <Link className="text-danger" to="/password/forgot">
+
+
+        {/* Move the Google Login button here */}
+        <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+          <button
+            onClick={googleLogin}
+            style={{
+              backgroundColor: "#d9534f",
+              color: "white",
+              padding: "0.5rem 1rem",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "1rem",
+            }}
+          >
+            Login With Google
+          </button>
+        </div>
+        <div style={{ textAlign: "right", marginTop: "0.5rem" }}>
+          <Link style={{ color: "#d9534f", textDecoration: "none" }} to="/password/forgot">
             Forgot Password
           </Link>
         </div>
+
       </div>
     </div>
   );
