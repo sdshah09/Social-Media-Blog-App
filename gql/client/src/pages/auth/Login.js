@@ -67,7 +67,7 @@ const Login = () => {
         type: "LOGGED_IN_USER",
         payload: { email: user.providerData[0].email, token: idTokenResult.token },
       });
-
+      
       await userCreate({ variables: { email: user.providerData[0].email } });
 
       toast.success("Google sign-in successful!");

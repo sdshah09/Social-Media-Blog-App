@@ -34,17 +34,22 @@ const AuthProvider = ({ children }) => {
           console.log("AuthProvider User is: ", user);
           console.log("Token is: ", idTokenResult.token);
 
-          // Check if user email is null
-          if (!user.email) {
-            console.warn("User email is null, attempting to refresh user info.");
-            await user.reload();
-            user = auth.currentUser;
-            console.log("Updated user after reload: ", user);
+          // Attempt to get the email, considering `providerData[0].email` if `user.email` is null
+          let email = user.email;
+          if (!email && user.providerData.length > 0) {
+            email = user.providerData[0].email;
+          }
+
+          // Handle the case where email might still be null after the reload attempt
+          if (!email) {
+            console.warn(
+              "User email is null, even after trying providerData[0].email."
+            );
           }
 
           dispatch({
             type: "LOGGED_IN_USER",
-            payload: { email: user.email, token: idTokenResult.token },
+            payload: { email: email, token: idTokenResult.token },
           });
         } catch (error) {
           console.error("Error retrieving user token:", error);

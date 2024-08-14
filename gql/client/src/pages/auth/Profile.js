@@ -21,6 +21,7 @@ const Profile = () => {
     images: [],
   });
   const [loading, setLoading] = useState(false);
+  console.log("AuthContext state in Profile: ", state);
 
   const { data } = useQuery(PROFILE);
   console.log("Data in Profile is: ",data);
@@ -36,7 +37,7 @@ const Profile = () => {
         images: JSON.parse(JSON.stringify(data.profile.images), omitTypename),
       }));
     }
-  }, [data]);
+  }, [data,state.user?.email]);
 
   const [userUpdate] = useMutation(USER_UPDATE, {
     onCompleted: (data) => {
@@ -50,7 +51,7 @@ const Profile = () => {
   });
 
   const { username, name, email, about, images } = values;
-
+  console.log("Values in profile are: ",values)
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Values in handleSubmit: ", values);
