@@ -62,13 +62,13 @@ const Login = () => {
       const result = await signInWithPopup(authInstance, provider);
       const { user } = result;
       const idTokenResult = await user.getIdTokenResult();
-
+      console.log("User result in google login is : ",user.providerData[0].email);
       dispatch({
         type: "LOGGED_IN_USER",
-        payload: { email: user.email, token: idTokenResult.token },
+        payload: { email: user.providerData[0].email, token: idTokenResult.token },
       });
 
-      await userCreate({ variables: { email: user.email } });
+      await userCreate({ variables: { email: user.providerData[0].email } });
 
       toast.success("Google sign-in successful!");
       navigate("/password/update");
